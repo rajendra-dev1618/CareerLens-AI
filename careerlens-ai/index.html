@@ -1,0 +1,1947 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>CareerLens AI — Resume &amp; Job Matching Platform</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --canvas:#F5F6FA; --surface:#FFFFFF; --surface-2:#FAFAFD; --border:#E6E8F0;
+  --ink:#0F1425; --ink-2:#414A60; --muted:#6B7280; --muted-2:#9AA1B1;
+  --accent:#4F46E5; --accent-2:#7C3AED; --accent-soft:#EEF0FE;
+  --ok:#10B981; --ok-soft:#E7F8F1; --warn:#F59E0B; --warn-soft:#FEF4E2; --bad:#EF4444; --bad-soft:#FDECEC;
+  --shadow:0 1px 2px rgba(16,24,40,.05), 0 8px 24px -12px rgba(16,24,40,.18);
+  --shadow-lg:0 24px 60px -24px rgba(16,24,40,.28);
+  --r-s:8px; --r-m:12px; --r-l:18px; --r-xl:26px;
+  --sans:'Inter',system-ui,-apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;
+  --mono:'JetBrains Mono',ui-monospace,SFMono-Regular,Menlo,monospace;
+  --sidebar:252px;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);
+  padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --canvas:#080B14; --surface:#101625; --surface-2:#151C2E; --border:#232C42;
+    --ink:#F2F4F9; --ink-2:#C4CBDA; --muted:#8C97AD; --muted-2:#6A7590;
+    --accent:#7D7BF5; --accent-2:#A78BFA; --accent-soft:#1B2043;
+    --ok:#34D399; --ok-soft:#10261F; --warn:#FBBF24; --warn-soft:#2A2110; --bad:#F87171; --bad-soft:#2C1618;
+    --shadow:0 1px 2px rgba(0,0,0,.4), 0 10px 30px -14px rgba(0,0,0,.7);
+    --shadow-lg:0 30px 70px -30px rgba(0,0,0,.8);
+  }
+}
+:root[data-theme="dark"]{
+  --canvas:#080B14; --surface:#101625; --surface-2:#151C2E; --border:#232C42;
+  --ink:#F2F4F9; --ink-2:#C4CBDA; --muted:#8C97AD; --muted-2:#6A7590;
+  --accent:#7D7BF5; --accent-2:#A78BFA; --accent-soft:#1B2043;
+  --ok:#34D399; --ok-soft:#10261F; --warn:#FBBF24; --warn-soft:#2A2110; --bad:#F87171; --bad-soft:#2C1618;
+  --shadow:0 1px 2px rgba(0,0,0,.4), 0 10px 30px -14px rgba(0,0,0,.7);
+  --shadow-lg:0 30px 70px -30px rgba(0,0,0,.8);
+}
+*,*::before,*::after{box-sizing:inherit}
+html{height:100%;scroll-behavior:smooth;scroll-padding-top:env(safe-area-inset-top,0px)}
+body{
+  margin:0;min-height:100%;background:var(--canvas);color:var(--ink);
+  font-family:var(--sans);font-size:15px;line-height:1.55;-webkit-font-smoothing:antialiased;
+}
+h1,h2,h3,h4{margin:0;line-height:1.2;letter-spacing:-.02em;font-weight:700}
+p{margin:0}
+a{color:inherit;text-decoration:none}
+button,input,select,textarea{font:inherit;color:inherit}
+:focus-visible{outline:2.5px solid var(--accent);outline-offset:2px;border-radius:6px}
+@media (prefers-reduced-motion: reduce){*{animation:none!important;transition:none!important}}
+.num{font-variant-numeric:tabular-nums}
+.hidden{display:none!important}
+
+/* ---------- primitives ---------- */
+.btn{
+  display:inline-flex;align-items:center;justify-content:center;gap:8px;
+  border:1px solid transparent;border-radius:var(--r-m);padding:10px 16px;
+  font-weight:600;font-size:14px;cursor:pointer;background:var(--surface);color:var(--ink);
+  transition:transform .12s ease, box-shadow .16s ease, background .16s ease, border-color .16s ease;
+}
+.btn:hover{transform:translateY(-1px)}
+.btn:active{transform:translateY(0)}
+.btn-primary{background:linear-gradient(135deg,var(--accent),var(--accent-2));color:#fff;box-shadow:0 8px 20px -10px var(--accent)}
+.btn-ghost{background:transparent;border-color:var(--border)}
+.btn-soft{background:var(--accent-soft);color:var(--accent)}
+.btn-danger{background:var(--bad-soft);color:var(--bad)}
+.btn-sm{padding:7px 12px;font-size:13px;border-radius:10px}
+.btn-lg{padding:14px 24px;font-size:16px}
+.btn[disabled]{opacity:.55;cursor:not-allowed;transform:none}
+.btn-block{width:100%}
+
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-l);box-shadow:var(--shadow)}
+.pad{padding:22px}
+.pad-lg{padding:28px}
+.stack{display:flex;flex-direction:column;gap:18px}
+.row{display:flex;align-items:center;gap:12px}
+.row-wrap{flex-wrap:wrap}
+.spread{display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap}
+.grid{display:grid;gap:18px}
+.muted{color:var(--muted)}
+.small{font-size:13px}
+.tiny{font-size:12px}
+.label{display:block;font-size:13px;font-weight:600;color:var(--ink-2);margin-bottom:6px}
+.field{width:100%;background:var(--surface-2);border:1px solid var(--border);border-radius:var(--r-m);padding:11px 13px;font-size:14px}
+.field:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 4px var(--accent-soft)}
+textarea.field{min-height:140px;resize:vertical;line-height:1.6}
+.help{font-size:12.5px;color:var(--muted);margin-top:6px}
+.err{font-size:13px;color:var(--bad);margin-top:8px;min-height:18px}
+
+.chip{display:inline-flex;align-items:center;gap:6px;padding:5px 11px;border-radius:999px;font-size:12.5px;font-weight:600;border:1px solid var(--border);background:var(--surface-2)}
+.chip-ok{background:var(--ok-soft);color:var(--ok);border-color:transparent}
+.chip-bad{background:var(--bad-soft);color:var(--bad);border-color:transparent}
+.chip-warn{background:var(--warn-soft);color:var(--warn);border-color:transparent}
+.chip-accent{background:var(--accent-soft);color:var(--accent);border-color:transparent}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+
+.bar{height:9px;border-radius:999px;background:var(--border);overflow:hidden}
+.bar > i{display:block;height:100%;border-radius:999px;background:linear-gradient(90deg,var(--accent),var(--accent-2));transition:width .6s cubic-bezier(.2,.8,.2,1)}
+.divider{height:1px;background:var(--border);margin:18px 0}
+.scroll-x{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:14px}
+th{text-align:left;font-size:12.5px;color:var(--muted);font-weight:600;padding:0 14px 10px}
+td{padding:13px 14px;border-top:1px solid var(--border);vertical-align:middle}
+tr:hover td{background:var(--surface-2)}
+
+/* ---------- landing ---------- */
+.site-nav{
+  position:sticky;top:env(safe-area-inset-top,0px);z-index:40;
+  backdrop-filter:blur(14px);background:color-mix(in srgb,var(--canvas) 80%,transparent);
+  border-bottom:1px solid var(--border);
+}
+.wrap{max-width:1140px;margin:0 auto;padding:0 22px}
+.nav-inner{display:flex;align-items:center;justify-content:space-between;height:66px;gap:16px}
+.nav-links{display:flex;gap:26px;font-size:14px;font-weight:500;color:var(--ink-2)}
+.nav-links a:hover{color:var(--accent)}
+.brand{display:flex;align-items:center;gap:10px;font-weight:800;letter-spacing:-.03em;font-size:17px}
+.logo{width:32px;height:32px;border-radius:10px;background:linear-gradient(135deg,var(--accent),var(--accent-2));display:grid;place-items:center;color:#fff;font-size:15px;font-weight:800;flex:none}
+.hero{padding:74px 0 60px;position:relative;overflow:hidden}
+.hero::after{
+  content:"";position:absolute;inset:auto auto 0 50%;translate:-50% 40%;
+  width:820px;height:420px;border-radius:50%;filter:blur(90px);opacity:.22;
+  background:radial-gradient(circle,var(--accent),transparent 65%);pointer-events:none;
+}
+.hero-grid{display:grid;grid-template-columns:1.05fr .95fr;gap:52px;align-items:center;position:relative;z-index:1}
+.hero h1{font-size:clamp(34px,5vw,54px);font-weight:800;letter-spacing:-.035em}
+.hero .lede{font-size:17px;color:var(--ink-2);margin-top:18px;max-width:52ch}
+.eyebrow{display:inline-flex;align-items:center;gap:8px;padding:6px 12px;border-radius:999px;background:var(--accent-soft);color:var(--accent);font-size:13px;font-weight:600;margin-bottom:18px}
+.hero-actions{display:flex;gap:12px;margin-top:26px;flex-wrap:wrap}
+.hero-stats{display:flex;gap:28px;margin-top:34px;flex-wrap:wrap}
+.hero-stats b{display:block;font-size:22px;font-weight:800}
+.preview{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-xl);box-shadow:var(--shadow-lg);padding:20px;position:relative;z-index:1}
+.preview-top{display:flex;gap:6px;margin-bottom:16px}
+.preview-top i{width:9px;height:9px;border-radius:50%;background:var(--border)}
+.sec{padding:68px 0;border-top:1px solid var(--border)}
+.sec h2{font-size:clamp(24px,3.4vw,34px)}
+.sec .sub{color:var(--muted);margin-top:10px;max-width:60ch}
+.feature-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin-top:34px}
+.feature{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-l);padding:22px}
+.feature .ico{width:38px;height:38px;border-radius:11px;background:var(--accent-soft);color:var(--accent);display:grid;place-items:center;margin-bottom:14px}
+.feature h3{font-size:16px;margin-bottom:7px}
+.steps{display:grid;grid-template-columns:repeat(4,1fr);gap:18px;margin-top:34px;counter-reset:s}
+.step{position:relative;padding-top:34px}
+.step::before{counter-increment:s;content:counter(s);position:absolute;top:0;left:0;width:26px;height:26px;border-radius:8px;background:var(--accent);color:#fff;display:grid;place-items:center;font-size:13px;font-weight:700}
+.step h3{font-size:15px;margin-bottom:6px}
+.faq details{border:1px solid var(--border);border-radius:var(--r-m);background:var(--surface);padding:16px 18px;margin-top:12px}
+.faq summary{cursor:pointer;font-weight:600;list-style:none}
+.faq summary::-webkit-details-marker{display:none}
+.faq summary::after{content:"+";float:right;color:var(--accent);font-weight:700}
+.faq details[open] summary::after{content:"–"}
+.faq p{margin-top:10px;color:var(--ink-2);font-size:14px}
+.cta-band{margin:0 auto;max-width:1140px;padding:0 22px}
+.cta-inner{background:linear-gradient(135deg,var(--accent),var(--accent-2));border-radius:var(--r-xl);padding:44px;color:#fff;text-align:center}
+.cta-inner h2{font-size:clamp(24px,3.4vw,32px)}
+.cta-inner p{opacity:.9;margin:12px auto 22px;max-width:52ch}
+.cta-inner .btn{background:#fff;color:var(--accent)}
+footer.site{padding:38px 0;border-top:1px solid var(--border);margin-top:64px;color:var(--muted);font-size:13.5px}
+
+/* ---------- auth ---------- */
+.auth-wrap{min-height:100vh;display:grid;place-items:center;padding:40px 20px}
+.auth-card{width:100%;max-width:430px}
+.tabs{display:flex;background:var(--surface-2);border:1px solid var(--border);border-radius:var(--r-m);padding:4px;margin-bottom:20px}
+.tabs button{flex:1;border:0;background:transparent;padding:9px;border-radius:9px;font-weight:600;font-size:14px;cursor:pointer;color:var(--muted)}
+.tabs button.on{background:var(--surface);color:var(--ink);box-shadow:var(--shadow)}
+
+/* ---------- app shell ---------- */
+.app{display:grid;grid-template-columns:var(--sidebar) 1fr;min-height:100vh}
+.side{
+  background:var(--surface);border-right:1px solid var(--border);
+  padding:20px 16px;display:flex;flex-direction:column;gap:6px;
+  position:sticky;top:env(safe-area-inset-top,0px);height:100vh;overflow-y:auto;
+}
+.side .brand{margin:4px 6px 20px}
+.nav-group{font-size:11.5px;font-weight:700;color:var(--muted-2);letter-spacing:.06em;margin:16px 10px 8px}
+.nav-item{
+  display:flex;align-items:center;gap:11px;padding:10px 11px;border-radius:11px;
+  font-size:14px;font-weight:500;color:var(--ink-2);cursor:pointer;border:0;background:transparent;width:100%;text-align:left;
+}
+.nav-item:hover{background:var(--surface-2);color:var(--ink)}
+.nav-item.on{background:var(--accent-soft);color:var(--accent);font-weight:600}
+.nav-item svg{flex:none}
+.side-foot{margin-top:auto;padding-top:16px;border-top:1px solid var(--border)}
+.avatar{width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--accent-2));color:#fff;display:grid;place-items:center;font-weight:700;font-size:13px;flex:none}
+.main{min-width:0;display:flex;flex-direction:column}
+.topbar{
+  position:sticky;top:env(safe-area-inset-top,0px);z-index:30;background:color-mix(in srgb,var(--canvas) 86%,transparent);
+  backdrop-filter:blur(12px);border-bottom:1px solid var(--border);padding:14px 26px;
+  display:flex;align-items:center;justify-content:space-between;gap:14px;
+}
+.topbar h1{font-size:19px}
+.content{padding:26px;max-width:1240px;width:100%}
+.icon-btn{width:36px;height:36px;border-radius:10px;border:1px solid var(--border);background:var(--surface);display:grid;place-items:center;cursor:pointer}
+.burger{display:none}
+
+.kpis{grid-template-columns:repeat(4,1fr)}
+.kpi{padding:18px}
+.kpi .k{font-size:13px;color:var(--muted);font-weight:500}
+.kpi .v{font-size:28px;font-weight:800;margin-top:6px;letter-spacing:-.03em}
+.kpi .d{font-size:12.5px;margin-top:4px;color:var(--muted)}
+.kpi .ico{width:36px;height:36px;border-radius:11px;display:grid;place-items:center;background:var(--accent-soft);color:var(--accent)}
+
+.empty{text-align:center;padding:44px 20px;border:1.5px dashed var(--border);border-radius:var(--r-l);background:var(--surface-2)}
+.empty h3{font-size:16px;margin-bottom:6px}
+
+.drop{
+  border:1.5px dashed var(--border);border-radius:var(--r-l);background:var(--surface-2);
+  padding:34px 20px;text-align:center;cursor:pointer;transition:border-color .15s,background .15s;
+}
+.drop:hover,.drop.over{border-color:var(--accent);background:var(--accent-soft)}
+.file-row{display:flex;align-items:center;gap:12px;padding:13px;border:1px solid var(--border);border-radius:var(--r-m);background:var(--surface)}
+.file-ico{width:36px;height:36px;border-radius:10px;background:var(--accent-soft);color:var(--accent);display:grid;place-items:center;font-size:11px;font-weight:700;flex:none}
+.pick{border:1.5px solid var(--border);border-radius:var(--r-m);padding:13px;cursor:pointer;background:var(--surface);display:flex;gap:11px;align-items:center}
+.pick:hover{border-color:var(--accent)}
+.pick.on{border-color:var(--accent);background:var(--accent-soft)}
+.pick .radio{width:17px;height:17px;border-radius:50%;border:2px solid var(--border);flex:none;display:grid;place-items:center}
+.pick.on .radio{border-color:var(--accent)}
+.pick.on .radio::after{content:"";width:8px;height:8px;border-radius:50%;background:var(--accent)}
+
+.score-hero{display:grid;grid-template-columns:230px 1fr;gap:28px;align-items:center}
+.ring-wrap{position:relative;display:grid;place-items:center}
+.ring-label{position:absolute;text-align:center}
+.ring-label b{display:block;font-size:42px;font-weight:800;letter-spacing:-.04em;line-height:1}
+.bars-list{display:flex;flex-direction:column;gap:14px}
+.bar-row .spread{margin-bottom:6px;font-size:13.5px;font-weight:600}
+.two-col{grid-template-columns:1fr 1fr}
+.g-split{grid-template-columns:1.5fr 1fr}
+.g-half{grid-template-columns:1fr 1fr}
+.rec{display:flex;gap:13px;padding:15px;border:1px solid var(--border);border-radius:var(--r-m);background:var(--surface-2)}
+.rec .n{width:25px;height:25px;border-radius:8px;background:var(--accent);color:#fff;display:grid;place-items:center;font-size:12.5px;font-weight:700;flex:none}
+.rec h4{font-size:14.5px;margin-bottom:3px}
+
+.toast-host{position:fixed;right:18px;bottom:calc(18px + env(safe-area-inset-bottom,0px));z-index:100;display:flex;flex-direction:column;gap:10px}
+.toast{background:var(--surface);border:1px solid var(--border);border-left:4px solid var(--accent);border-radius:var(--r-m);padding:12px 16px;box-shadow:var(--shadow-lg);font-size:14px;max-width:330px;animation:pop .2s ease}
+.toast.ok{border-left-color:var(--ok)} .toast.bad{border-left-color:var(--bad)}
+@keyframes pop{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+
+.modal-host{position:fixed;inset:0;background:rgba(8,11,20,.55);z-index:90;display:grid;place-items:center;padding:20px}
+.modal{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-l);max-width:520px;width:100%;box-shadow:var(--shadow-lg)}
+
+.loader{width:16px;height:16px;border-radius:50%;border:2.5px solid rgba(255,255,255,.35);border-top-color:#fff;animation:spin .7s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.run-step{display:flex;align-items:center;gap:11px;font-size:14px;color:var(--muted);padding:7px 0}
+.run-step.on{color:var(--ink);font-weight:600}
+.run-step.done{color:var(--ok)}
+.dot{width:9px;height:9px;border-radius:50%;background:var(--border);flex:none}
+.run-step.on .dot{background:var(--accent);box-shadow:0 0 0 4px var(--accent-soft)}
+.run-step.done .dot{background:var(--ok)}
+
+pre.code{background:var(--surface-2);border:1px solid var(--border);border-radius:var(--r-m);padding:15px;overflow-x:auto;font-family:var(--mono);font-size:12.5px;line-height:1.65;margin:0}
+code.inl{font-family:var(--mono);font-size:12.5px;background:var(--surface-2);border:1px solid var(--border);padding:1px 6px;border-radius:6px}
+.method{font-family:var(--mono);font-size:11px;font-weight:700;padding:3px 7px;border-radius:6px}
+.m-get{background:var(--ok-soft);color:var(--ok)} .m-post{background:var(--accent-soft);color:var(--accent)} .m-del{background:var(--bad-soft);color:var(--bad)}
+
+@media (max-width:1000px){
+  .hero-grid{grid-template-columns:1fr;gap:36px}
+  .feature-grid{grid-template-columns:repeat(2,1fr)}
+  .steps{grid-template-columns:repeat(2,1fr)}
+  .kpis{grid-template-columns:repeat(2,1fr)}
+  .two-col,.g-split,.g-half{grid-template-columns:1fr}
+  .app{grid-template-columns:1fr}
+  .side{position:fixed;left:0;top:0;bottom:0;width:var(--sidebar);z-index:60;transform:translateX(-102%);transition:transform .22s ease;height:100%}
+  .side.open{transform:none;box-shadow:var(--shadow-lg)}
+  .burger{display:grid}
+  .score-hero{grid-template-columns:1fr;justify-items:center;text-align:center}
+  .bars-list{width:100%;text-align:left}
+}
+@media (max-width:620px){
+  .feature-grid,.steps,.kpis{grid-template-columns:1fr}
+  .nav-links{display:none}
+  .content{padding:18px}
+  .topbar{padding:12px 16px}
+  .pad-lg{padding:20px}
+  .cta-inner{padding:30px 22px}
+}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<div class="toast-host" id="toasts"></div>
+<div id="modals"></div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js"></script>
+<script>
+/* ============================================================
+   CareerLens AI — single-file working application
+   Layers mirror the Spring Boot design:
+     Store    ~ Repository / MySQL
+     Auth     ~ Spring Security + JWT
+     Parser   ~ PDFBox / POI + NLP extraction
+     Engine   ~ MatchingEngine + AIService
+     UI       ~ React views
+   ============================================================ */
+'use strict';
+
+if (window.pdfjsLib) {
+  pdfjsLib.GlobalWorkerOptions.workerSrc =
+    'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+}
+
+/* ---------------- tiny DOM helpers ---------------- */
+const $  = (s, r = document) => r.querySelector(s);
+const $$ = (s, r = document) => [...r.querySelectorAll(s)];
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c =>
+  ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
+const fmtDate = ts => new Date(ts).toLocaleDateString(undefined, { day: 'numeric', month: 'short', year: 'numeric' });
+const fmtSize = b => b < 1024 ? b + ' B' : b < 1048576 ? (b / 1024).toFixed(1) + ' KB' : (b / 1048576).toFixed(1) + ' MB';
+const clamp01 = n => Math.max(0, Math.min(1, n));
+
+function toast(msg, kind = '') {
+  const el = document.createElement('div');
+  el.className = 'toast ' + kind;
+  el.textContent = msg;
+  $('#toasts').appendChild(el);
+  setTimeout(() => { el.style.opacity = '0'; setTimeout(() => el.remove(), 250); }, 3200);
+}
+
+function confirmDialog(title, body, okLabel = 'Delete') {
+  return new Promise(resolve => {
+    const host = document.createElement('div');
+    host.className = 'modal-host';
+    host.innerHTML = `<div class="modal pad-lg">
+      <h3 style="font-size:17px">${esc(title)}</h3>
+      <p class="muted small" style="margin-top:8px">${esc(body)}</p>
+      <div class="row" style="justify-content:flex-end;margin-top:22px">
+        <button class="btn btn-ghost" data-no>Cancel</button>
+        <button class="btn btn-danger" data-yes>${esc(okLabel)}</button>
+      </div></div>`;
+    $('#modals').appendChild(host);
+    const done = v => { host.remove(); resolve(v); };
+    host.querySelector('[data-no]').onclick = () => done(false);
+    host.querySelector('[data-yes]').onclick = () => done(true);
+    host.onclick = e => { if (e.target === host) done(false); };
+  });
+}
+
+/* ============================================================
+   1. STORE  — persistence layer (stands in for MySQL)
+   ============================================================ */
+const KEY = 'careerlens.v1';
+const Store = {
+  db: { users: [], session: null, resumes: [], jobs: [], analyses: [], theme: null },
+  load() {
+    try {
+      const raw = localStorage.getItem(KEY);
+      if (raw) this.db = Object.assign(this.db, JSON.parse(raw));
+    } catch (e) { console.warn('Storage unavailable, running in memory only.'); }
+    return this.db;
+  },
+  save() {
+    try { localStorage.setItem(KEY, JSON.stringify(this.db)); }
+    catch (e) { /* private mode / quota — app still works for this session */ }
+  },
+  me() { return this.db.users.find(u => u.id === this.db.session) || null; },
+  mine(coll) { const id = this.db.session; return this.db[coll].filter(r => r.userId === id); },
+  insert(coll, row) { row.id = uid(); row.createdAt = Date.now(); this.db[coll].push(row); this.save(); return row; },
+  remove(coll, id) { this.db[coll] = this.db[coll].filter(r => r.id !== id); this.save(); },
+  get(coll, id) { return this.db[coll].find(r => r.id === id); }
+};
+
+/* ============================================================
+   2. AUTH — registration, login, session (stands in for JWT)
+   ============================================================ */
+function hash(pw) { // deliberately simple: a real build hashes with BCrypt server-side
+  let h = 2166136261;
+  for (let i = 0; i < pw.length; i++) { h ^= pw.charCodeAt(i); h = Math.imul(h, 16777619); }
+  return ('00000000' + (h >>> 0).toString(16)).slice(-8);
+}
+const Auth = {
+  register(name, email, password) {
+    email = email.trim().toLowerCase();
+    if (name.trim().length < 2) throw new Error('Enter your full name.');
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)) throw new Error('Enter a valid email address.');
+    if (password.length < 6) throw new Error('Use at least 6 characters for your password.');
+    if (Store.db.users.some(u => u.email === email)) throw new Error('An account already uses that email.');
+    const user = { id: uid(), name: name.trim(), email, pw: hash(password), createdAt: Date.now() };
+    Store.db.users.push(user); Store.db.session = user.id; Store.save();
+    return user;
+  },
+  login(email, password) {
+    const user = Store.db.users.find(u => u.email === email.trim().toLowerCase());
+    if (!user || user.pw !== hash(password)) throw new Error('Email or password is incorrect.');
+    Store.db.session = user.id; Store.save();
+    return user;
+  },
+  logout() { Store.db.session = null; Store.save(); }
+};
+
+/* ============================================================
+   3. SKILL TAXONOMY — canonical names, aliases, relations
+   ============================================================ */
+const SKILLS = {
+  'Java':            { cat: 'Language', alias: ['java', 'core java', 'java se', 'j2ee'] },
+  'Python':          { cat: 'Language', alias: ['python', 'python3'] },
+  'JavaScript':      { cat: 'Language', alias: ['javascript', 'js', 'es6', 'ecmascript'] },
+  'TypeScript':      { cat: 'Language', alias: ['typescript', 'ts'] },
+  'C++':             { cat: 'Language', alias: ['c++', 'cpp'] },
+  'C':               { cat: 'Language', alias: ['c language', 'ansi c'] },
+  'C#':              { cat: 'Language', alias: ['c#', 'csharp', '.net'] },
+  'Go':              { cat: 'Language', alias: ['golang', 'go lang'] },
+  'SQL':             { cat: 'Database', alias: ['sql', 'structured query language', 'queries'] },
+  'MySQL':           { cat: 'Database', alias: ['mysql'] },
+  'PostgreSQL':      { cat: 'Database', alias: ['postgresql', 'postgres'] },
+  'MongoDB':         { cat: 'Database', alias: ['mongodb', 'mongo'] },
+  'Redis':           { cat: 'Database', alias: ['redis'] },
+  'Spring Boot':     { cat: 'Framework', alias: ['spring boot', 'springboot', 'spring-boot'] },
+  'Spring Framework':{ cat: 'Framework', alias: ['spring framework', 'spring mvc', 'spring core'] },
+  'Spring Security': { cat: 'Framework', alias: ['spring security'] },
+  'Hibernate':       { cat: 'Framework', alias: ['hibernate', 'jpa', 'spring data jpa'] },
+  'REST APIs':       { cat: 'Concept',   alias: ['rest api', 'rest apis', 'restful', 'restful web services', 'rest services', 'web services'] },
+  'GraphQL':         { cat: 'Concept',   alias: ['graphql'] },
+  'Microservices':   { cat: 'Concept',   alias: ['microservice', 'microservices'] },
+  'React':           { cat: 'Framework', alias: ['react', 'react.js', 'reactjs'] },
+  'Angular':         { cat: 'Framework', alias: ['angular', 'angularjs'] },
+  'Vue':             { cat: 'Framework', alias: ['vue', 'vue.js', 'vuejs'] },
+  'Node.js':         { cat: 'Framework', alias: ['node', 'node.js', 'nodejs'] },
+  'Express':         { cat: 'Framework', alias: ['express', 'express.js'] },
+  'Django':          { cat: 'Framework', alias: ['django'] },
+  'Flask':           { cat: 'Framework', alias: ['flask'] },
+  'HTML':            { cat: 'Frontend',  alias: ['html', 'html5'] },
+  'CSS':             { cat: 'Frontend',  alias: ['css', 'css3', 'scss', 'sass'] },
+  'Tailwind CSS':    { cat: 'Frontend',  alias: ['tailwind', 'tailwind css'] },
+  'Bootstrap':       { cat: 'Frontend',  alias: ['bootstrap'] },
+  'Docker':          { cat: 'DevOps',    alias: ['docker', 'containerisation', 'containerization'] },
+  'Kubernetes':      { cat: 'DevOps',    alias: ['kubernetes', 'k8s'] },
+  'AWS':             { cat: 'Cloud',     alias: ['aws', 'amazon web services', 'ec2', 's3'] },
+  'Azure':           { cat: 'Cloud',     alias: ['azure', 'microsoft azure'] },
+  'GCP':             { cat: 'Cloud',     alias: ['gcp', 'google cloud'] },
+  'CI/CD':           { cat: 'DevOps',    alias: ['ci/cd', 'ci cd', 'continuous integration', 'continuous delivery'] },
+  'Jenkins':         { cat: 'DevOps',    alias: ['jenkins'] },
+  'Linux':           { cat: 'Tool',      alias: ['linux', 'unix', 'bash', 'shell scripting'] },
+  'Git':             { cat: 'Tool',      alias: ['git', 'github', 'gitlab', 'version control'] },
+  'Maven':           { cat: 'Tool',      alias: ['maven'] },
+  'Gradle':          { cat: 'Tool',      alias: ['gradle'] },
+  'JUnit':           { cat: 'Tool',      alias: ['junit', 'unit testing', 'mockito'] },
+  'Postman':         { cat: 'Tool',      alias: ['postman'] },
+  'Kafka':           { cat: 'Tool',      alias: ['kafka', 'apache kafka'] },
+  'RabbitMQ':        { cat: 'Tool',      alias: ['rabbitmq'] },
+  'Elasticsearch':   { cat: 'Tool',      alias: ['elasticsearch', 'elastic search'] },
+  'Data Structures': { cat: 'Concept',   alias: ['data structures', 'dsa', 'algorithms', 'data structures and algorithms'] },
+  'System Design':   { cat: 'Concept',   alias: ['system design', 'high level design', 'low level design'] },
+  'OOP':             { cat: 'Concept',   alias: ['oop', 'object oriented programming', 'object-oriented'] },
+  'Machine Learning':{ cat: 'AI',        alias: ['machine learning', 'ml', 'scikit-learn', 'sklearn'] },
+  'Deep Learning':   { cat: 'AI',        alias: ['deep learning', 'neural networks', 'tensorflow', 'pytorch'] },
+  'NLP':             { cat: 'AI',        alias: ['nlp', 'natural language processing'] },
+  'Pandas':          { cat: 'AI',        alias: ['pandas'] },
+  'NumPy':           { cat: 'AI',        alias: ['numpy'] },
+  'Agile':           { cat: 'Process',   alias: ['agile', 'scrum', 'kanban', 'sprint'] },
+  'Communication':   { cat: 'Soft',      alias: ['communication', 'communication skills'] },
+  'Teamwork':        { cat: 'Soft',      alias: ['teamwork', 'team player', 'collaboration'] },
+  'Problem Solving': { cat: 'Soft',      alias: ['problem solving', 'problem-solving', 'analytical thinking'] },
+  'Leadership':      { cat: 'Soft',      alias: ['leadership', 'mentoring', 'led a team'] }
+};
+
+// Adjacent skills earn partial credit — this is the "semantic matching" rule table.
+const RELATED = {
+  'Spring Boot': ['Java', 'Spring Framework', 'Hibernate', 'REST APIs', 'Spring Security'],
+  'Spring Framework': ['Java', 'Spring Boot', 'Hibernate'],
+  'Spring Security': ['Spring Boot', 'Java'],
+  'Hibernate': ['SQL', 'Spring Boot', 'Java'],
+  'REST APIs': ['Spring Boot', 'Node.js', 'Express', 'GraphQL', 'Django', 'Flask'],
+  'Microservices': ['Spring Boot', 'Docker', 'Kubernetes', 'REST APIs'],
+  'MySQL': ['SQL', 'PostgreSQL', 'Hibernate'],
+  'PostgreSQL': ['SQL', 'MySQL'],
+  'SQL': ['MySQL', 'PostgreSQL', 'Hibernate'],
+  'MongoDB': ['SQL', 'Redis'],
+  'Docker': ['Kubernetes', 'CI/CD', 'Linux', 'AWS'],
+  'Kubernetes': ['Docker', 'AWS', 'CI/CD'],
+  'AWS': ['Azure', 'GCP', 'Docker'],
+  'Azure': ['AWS', 'GCP'], 'GCP': ['AWS', 'Azure'],
+  'CI/CD': ['Jenkins', 'Docker', 'Git'],
+  'React': ['JavaScript', 'TypeScript', 'HTML', 'CSS', 'Vue', 'Angular'],
+  'Angular': ['TypeScript', 'JavaScript', 'React'],
+  'Vue': ['JavaScript', 'React'],
+  'Node.js': ['JavaScript', 'Express', 'REST APIs'],
+  'Express': ['Node.js', 'REST APIs'],
+  'TypeScript': ['JavaScript'], 'JavaScript': ['TypeScript', 'HTML', 'CSS'],
+  'Java': ['OOP', 'Spring Boot', 'Data Structures'],
+  'Python': ['Django', 'Flask', 'Pandas', 'Machine Learning'],
+  'Machine Learning': ['Python', 'Deep Learning', 'NumPy', 'Pandas', 'NLP'],
+  'Deep Learning': ['Machine Learning', 'Python'], 'NLP': ['Machine Learning', 'Python'],
+  'Data Structures': ['Algorithms', 'System Design', 'Java'],
+  'System Design': ['Microservices', 'Data Structures'],
+  'JUnit': ['Java', 'Maven'], 'Maven': ['Java', 'Gradle'], 'Gradle': ['Maven', 'Java'],
+  'Tailwind CSS': ['CSS', 'Bootstrap'], 'Bootstrap': ['CSS', 'HTML'],
+  'HTML': ['CSS', 'JavaScript'], 'CSS': ['HTML', 'Tailwind CSS', 'Bootstrap'],
+  'Kafka': ['RabbitMQ', 'Microservices'], 'RabbitMQ': ['Kafka'],
+  'Linux': ['Docker', 'Git'], 'Git': ['CI/CD', 'Linux'],
+  'Agile': ['Teamwork', 'Communication'],
+  'Leadership': ['Teamwork', 'Communication'], 'Teamwork': ['Communication', 'Leadership']
+};
+const relatedTo = s => RELATED[s] || [];
+
+// learning guidance used by the recommendation writer
+const LEARN = {
+  'Spring Boot': ['Work through the official Spring Boot guides, then build one CRUD service end to end.', 'Ship a small Spring Boot service with JPA and a MySQL schema, and put the repo link on your resume.'],
+  'REST APIs': ['Learn resource naming, status codes, pagination and error handling.', 'Expose a documented REST API and test every endpoint in Postman.'],
+  'Docker': ['Learn images, layers, volumes and docker-compose.', 'Containerise one of your existing projects and add the Dockerfile to the repo.'],
+  'Kubernetes': ['Start with pods, deployments and services on a local cluster.', 'Deploy a two-service app to kind or minikube.'],
+  'AWS': ['Cover the core services first: EC2, S3, RDS and IAM.', 'Host one project on AWS and describe the deployment on your resume.'],
+  'Microservices': ['Study service boundaries, inter-service calls and config management.', 'Split one monolith project into two services that talk over REST.'],
+  'React': ['Get comfortable with components, hooks and state.', 'Rebuild an existing UI of yours in React with real API calls.'],
+  'SQL': ['Practise joins, grouping, indexes and query plans.', 'Solve a set of SQL exercises and model one project schema yourself.'],
+  'Data Structures': ['Revise arrays, hashing, trees and graphs with timed practice.', 'Keep a public solutions repo so the practice is visible.'],
+  'Kafka': ['Learn topics, partitions, producers and consumers.', 'Add an event-driven flow to one project using Kafka.'],
+  'CI/CD': ['Learn pipeline stages, caching and environment secrets.', 'Add a GitHub Actions workflow that builds and tests on every push.']
+};
+
+/* ============================================================
+   4. PARSER — file text extraction + structured resume data
+      (the browser-side stand-in for PDFBox / POI + NLP)
+   ============================================================ */
+const Parser = {
+  async extractText(file) {
+    const name = file.name.toLowerCase();
+    const buf = await file.arrayBuffer();
+    if (name.endsWith('.pdf')) {
+      if (!window.pdfjsLib) throw new Error('The PDF reader did not load. Paste your resume text instead.');
+      const pdf = await pdfjsLib.getDocument({ data: buf }).promise;
+      let out = '';
+      for (let p = 1; p <= pdf.numPages; p++) {
+        const page = await pdf.getPage(p);
+        const tc = await page.getTextContent();
+        let line = '', lastY = null;
+        for (const item of tc.items) {
+          const y = item.transform[5];
+          if (lastY !== null && Math.abs(y - lastY) > 3) { out += line.trim() + '\n'; line = ''; }
+          line += item.str + ' ';
+          lastY = y;
+        }
+        out += line.trim() + '\n\n';
+      }
+      return out;
+    }
+    if (name.endsWith('.docx')) {
+      if (!window.mammoth) throw new Error('The DOCX reader did not load. Paste your resume text instead.');
+      const res = await mammoth.extractRawText({ arrayBuffer: buf });
+      return res.value;
+    }
+    if (name.endsWith('.txt') || name.endsWith('.md')) return new TextDecoder().decode(buf);
+    throw new Error('Upload a PDF, DOCX or TXT file.');
+  },
+
+  /* alias-aware skill detection with symbol-safe boundaries */
+  findSkills(text) {
+    const low = ' ' + text.toLowerCase().replace(/\s+/g, ' ') + ' ';
+    const found = new Map();
+    for (const [canon, meta] of Object.entries(SKILLS)) {
+      for (const a of meta.alias) {
+        const esc2 = a.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        const re = new RegExp('(^|[^a-z0-9+#])' + esc2 + '([^a-z0-9+#]|$)', 'i');
+        if (re.test(low)) { found.set(canon, meta.cat); break; }
+      }
+    }
+    return found;
+  },
+
+  sections(text) {
+    const heads = {
+      education: /\b(education|academic|qualification)/i,
+      experience: /\b(experience|employment|work history|internship|professional)/i,
+      projects: /\b(projects?|personal projects|academic projects)/i,
+      skills: /\b(skills|technical skills|technologies|tech stack)/i,
+      certifications: /\b(certification|certificate|courses)/i,
+      achievements: /\b(achievement|award|honou?r)/i,
+      summary: /\b(summary|objective|profile|about me)/i
+    };
+    const lines = text.split(/\r?\n/);
+    const out = { education: '', experience: '', projects: '', skills: '', certifications: '', achievements: '', summary: '' };
+    let cur = null;
+    for (const raw of lines) {
+      const l = raw.trim();
+      if (!l) { if (cur) out[cur] += '\n'; continue; }
+      const short = l.length <= 48 && !/[.;]$/.test(l);
+      let matched = null;
+      if (short) for (const [k, re] of Object.entries(heads)) if (re.test(l)) { matched = k; break; }
+      if (matched) { cur = matched; continue; }
+      if (cur) out[cur] += l + '\n';
+    }
+    return out;
+  },
+
+  years(text) {
+    let best = 0;
+    for (const m of text.matchAll(/(\d{1,2}(?:\.\d)?)\s*\+?\s*(?:years?|yrs?)\b/gi)) best = Math.max(best, parseFloat(m[1]));
+    if (best) return Math.min(best, 40);
+    // fall back to date ranges: 2021 – 2024, Jan 2022 - Present
+    let months = 0;
+    const now = new Date().getFullYear();
+    for (const m of text.matchAll(/(19|20)(\d{2})\s*[–—\-to]{1,3}\s*((19|20)\d{2}|present|current|now)/gi)) {
+      const from = parseInt(m[1] + m[2], 10);
+      const to = /present|current|now/i.test(m[3]) ? now : parseInt(m[3], 10);
+      if (to >= from && to - from <= 25) months += (to - from) * 12;
+    }
+    return Math.round(months / 12 * 10) / 10;
+  },
+
+  education(text) {
+    const t = text.toLowerCase();
+    if (/\b(ph\.?d|doctorate|doctoral)\b/.test(t)) return { level: 4, label: 'Doctorate' };
+    if (/\b(m\.?tech|m\.?e\b|master|m\.?sc|mca|m\.?s\b|mba|post ?graduate)\b/.test(t)) return { level: 3, label: "Master's degree" };
+    if (/\b(b\.?tech|b\.?e\b|bachelor|b\.?sc|bca|b\.?s\b|b\.?com|under ?graduate)\b/.test(t)) return { level: 2, label: "Bachelor's degree" };
+    if (/\b(diploma|polytechnic|associate degree)\b/.test(t)) return { level: 1, label: 'Diploma' };
+    return { level: 0, label: 'Not detected' };
+  },
+
+  /* full structured record — the "Structured Resume Data" node of the workflow */
+  parseResume(text) {
+    const sec = this.sections(text);
+    const skills = this.findSkills(text);
+    const firstLines = text.split(/\r?\n/).map(l => l.trim()).filter(Boolean).slice(0, 6);
+    const email = (text.match(/[\w.+-]+@[\w-]+\.[\w.]{2,}/) || [''])[0];
+    const phone = (text.match(/(\+?\d[\d\s\-()]{8,}\d)/) || [''])[0].trim();
+    let name = '';
+    for (const l of firstLines) {
+      if (l.includes('@') || /\d{5}/.test(l)) continue;
+      if (/^[A-Za-z][A-Za-z.'\-]*(\s+[A-Za-z][A-Za-z.'\-]*){0,3}$/.test(l) && l.length <= 42) { name = l; break; }
+    }
+    const projectCount = (sec.projects.match(/^\s*[-•*●]|\n[A-Z][^\n]{6,60}\n/gm) || []).length;
+    return {
+      name: name || 'Not detected',
+      email: email || 'Not detected',
+      phone: phone || 'Not detected',
+      skills: [...skills.keys()],
+      skillsByCat: [...skills.entries()].reduce((a, [s, c]) => ((a[c] = a[c] || []).push(s), a), {}),
+      years: this.years(sec.experience || text),
+      education: this.education(sec.education || text),
+      sections: sec,
+      projectSkills: [...this.findSkills(sec.projects).keys()],
+      experienceSkills: [...this.findSkills(sec.experience).keys()],
+      certifications: sec.certifications.split('\n').map(s => s.trim()).filter(Boolean).slice(0, 6),
+      projectCount: Math.max(projectCount, sec.projects.trim() ? 1 : 0),
+      words: text.trim().split(/\s+/).length,
+      raw: text
+    };
+  },
+
+  /* job description → required vs preferred requirements */
+  parseJob(text) {
+    const lines = text.split(/\r?\n/);
+    const required = new Set(), preferred = new Set();
+    let bucket = 'required';
+    const toPref = /\b(preferred|nice to have|nice-to-have|good to have|bonus|a plus|plus points?|desirable|optional|we'?d love)\b/i;
+    const toReq = /\b(required|requirements?|must have|must-have|minimum qualifications?|essential|you will need|responsibilities|what you'?ll do|qualifications)\b/i;
+    for (const raw of lines) {
+      const l = raw.trim();
+      if (!l) continue;
+      if (toPref.test(l)) bucket = 'preferred';
+      else if (toReq.test(l)) bucket = 'required';
+      for (const s of Parser.findSkills(l).keys()) (bucket === 'preferred' ? preferred : required).add(s);
+    }
+    // anything only seen in the preferred bucket stays preferred
+    for (const s of required) preferred.delete(s);
+    if (required.size === 0) for (const s of Parser.findSkills(text).keys()) required.add(s);
+    const yearsReq = (() => {
+      const m = text.match(/(\d{1,2})\s*\+?\s*(?:-\s*\d{1,2}\s*)?(?:years?|yrs?)/i);
+      return m ? parseInt(m[1], 10) : 0;
+    })();
+    return {
+      required: [...required],
+      preferred: [...preferred],
+      yearsRequired: yearsReq,
+      education: this.education(text),
+      raw: text
+    };
+  }
+};
+
+/* ============================================================
+   5. MATCHING ENGINE — transparent, weighted, explainable
+   ============================================================ */
+const WEIGHTS = { required: 0.50, preferred: 0.15, experience: 0.15, education: 0.10, projects: 0.10 };
+// A skill found only through an adjacent one earns partial credit. Adjacency
+// through a specific technology counts for more than adjacency through a base
+// language everyone lists, so "Spring Boot via REST APIs" beats "React via HTML".
+const RELATED_CREDIT = 0.5, RELATED_CREDIT_WEAK = 0.25;
+const GENERIC = new Set(['JavaScript', 'HTML', 'CSS', 'SQL', 'Java', 'Python', 'Git', 'Linux', 'OOP', 'C']);
+
+const STOP = new Set('a an the and or of to in for with on at by as is are be we you your our will that this from have has using use strong good excellent ability work working experience years team role job candidate must should knowledge plus etc'.split(' '));
+function vector(text) {
+  const v = new Map();
+  for (const w of text.toLowerCase().match(/[a-z][a-z+#.]{1,}/g) || []) {
+    if (STOP.has(w) || w.length < 3) continue;
+    v.set(w, (v.get(w) || 0) + 1);
+  }
+  return v;
+}
+function cosine(a, b) {
+  let dot = 0, na = 0, nb = 0;
+  for (const [, x] of a) na += x * x;
+  for (const [k, y] of b) { nb += y * y; if (a.has(k)) dot += a.get(k) * y; }
+  return (na && nb) ? dot / (Math.sqrt(na) * Math.sqrt(nb)) : 0;
+}
+
+function matchSkillSet(resumeSkills, wanted) {
+  const have = new Set(resumeSkills);
+  const matched = [], related = [], missing = [];
+  let credit = 0;
+  for (const s of wanted) {
+    if (have.has(s)) { matched.push(s); credit += 1; continue; }
+    const via = relatedTo(s).filter(r => have.has(r));
+    if (via.length) {
+      const strong = via.some(v => !GENERIC.has(v));
+      const c = strong ? RELATED_CREDIT : RELATED_CREDIT_WEAK;
+      credit += c;
+      related.push({ skill: s, via: via.slice(0, 3), credit: c, strong });
+    } else missing.push(s);
+  }
+  const total = wanted.length;
+  return { matched, related, missing, score: clamp01(total === 0 ? 1 : credit / total) };
+}
+
+const Engine = {
+  run(resume, job) {
+    const r = resume.parsed, j = job.parsed;
+
+    const req = matchSkillSet(r.skills, j.required);
+    const pref = matchSkillSet(r.skills, j.preferred);
+
+    // experience: years coverage blended with how much of the job's stack shows up in work history
+    let expYears = j.yearsRequired ? clamp01(r.years / j.yearsRequired) : (r.years > 0 ? 0.85 : 0.45);
+    const jobStack = [...new Set([...j.required, ...j.preferred])];
+    const expOverlap = jobStack.length ? r.experienceSkills.filter(s => jobStack.includes(s)).length / jobStack.length : 0;
+    const experience = clamp01(expYears * 0.6 + Math.min(expOverlap * 1.6, 1) * 0.4);
+
+    // education: meeting or exceeding the asked level scores full marks
+    const need = j.education.level || 2, got = r.education.level;
+    const education = got === 0 ? 0.4 : got >= need ? 1 : clamp01(0.55 + (got / need) * 0.35);
+
+    // projects: how much of the job's stack is demonstrated in project work
+    const projOverlap = jobStack.length ? r.projectSkills.filter(s => jobStack.includes(s)).length / jobStack.length : 0;
+    const projects = clamp01(Math.min(projOverlap * 1.8, 1) * 0.8 + Math.min(r.projectCount / 3, 1) * 0.2);
+
+    const semantic = cosine(vector(r.raw), vector(j.raw));
+
+    const parts = {
+      required: req.score, preferred: pref.score,
+      experience, education, projects
+    };
+    const overall = Math.round(
+      (parts.required * WEIGHTS.required + parts.preferred * WEIGHTS.preferred +
+       parts.experience * WEIGHTS.experience + parts.education * WEIGHTS.education +
+       parts.projects * WEIGHTS.projects) * 100
+    );
+
+    return {
+      overall, parts, semantic,
+      req, pref,
+      gaps: this.gaps(req, pref),
+      recommendations: this.recommend(r, j, req, pref, parts),
+      explanation: this.explain(overall, req, pref, parts, r, j),
+      snapshot: {
+        candidateYears: r.years, requiredYears: j.yearsRequired,
+        education: r.education.label, educationAsked: j.education.label,
+        skillsFound: r.skills.length
+      }
+    };
+  },
+
+  gaps(req, pref) {
+    const out = [];
+    for (const s of req.missing) out.push({ skill: s, severity: 'critical', cat: (SKILLS[s] || {}).cat || 'Skill' });
+    for (const g of req.related) out.push({ skill: g.skill, severity: 'partial', via: g.via, strong: g.strong, cat: (SKILLS[g.skill] || {}).cat || 'Skill' });
+    for (const s of pref.missing) out.push({ skill: s, severity: 'preferred', cat: (SKILLS[s] || {}).cat || 'Skill' });
+    return out;
+  },
+
+  /* Recommendations are generated only from what the resume and job actually
+     contain — the engine never invents skills, projects or certifications. */
+  recommend(r, j, req, pref, parts) {
+    const out = [];
+    for (const s of req.missing.slice(0, 3)) {
+      const tips = LEARN[s] || [`Learn ${s} to the level the job describes.`, `Apply ${s} in one project you can link to.`];
+      out.push({ title: `Close the gap on ${s}`, body: tips[0] + ' ' + tips[1], tag: 'Required skill' });
+    }
+    for (const g of req.related.slice(0, 2)) {
+      out.push(g.strong ? {
+        title: `Name ${g.skill} explicitly`,
+        body: `Your resume shows ${g.via.join(' and ')}, which is close, but a keyword scan will not credit you for ${g.skill}. If you have used it, say so in the project or experience bullet where it applies.`,
+        tag: 'Wording'
+      } : {
+        title: `${g.skill} is only implied`,
+        body: `The nearest evidence in your resume is ${g.via.join(' and ')}, which is a foundation for ${g.skill} rather than the skill itself. Treat this as a real gap unless you can show ${g.skill} in a project.`,
+        tag: 'Weak match'
+      });
+    }
+    if (parts.experience < 0.6 && j.yearsRequired) {
+      out.push({
+        title: 'Make your experience duration explicit',
+        body: `The job asks for about ${j.yearsRequired} year(s). Your resume reads as ${r.years || 'no stated'} year(s). Add clear start and end dates to every role and internship so the duration is countable.`,
+        tag: 'Experience'
+      });
+    }
+    if (parts.projects < 0.55) {
+      const want = [...new Set([...j.required, ...j.preferred])].filter(s => r.skills.includes(s)).slice(0, 3);
+      out.push({
+        title: 'Point your projects at this role',
+        body: want.length
+          ? `Lead with the projects that use ${want.join(', ')}, and describe the outcome rather than the tools alone.`
+          : 'Add a projects section that shows the stack this job asks for, with a one-line result for each project.',
+        tag: 'Projects'
+      });
+    }
+    if (pref.missing.length) {
+      out.push({
+        title: 'Pick up one preferred skill',
+        body: `${pref.missing.slice(0, 3).join(', ')} are listed as preferred. One of them, shown in a real project, is usually enough to separate you from equally qualified applicants.`,
+        tag: 'Preferred skill'
+      });
+    }
+    if (r.words < 250) {
+      out.push({ title: 'Your resume is thin on detail', body: `The parser read about ${r.words} words. Most of the scoring signal comes from experience and project bullets, so add specifics: what you built, with what, and what changed as a result.`, tag: 'Content' });
+    }
+    if (req.matched.length) {
+      out.push({
+        title: 'Lead with what already matches',
+        body: `${req.matched.slice(0, 4).join(', ')} are exactly what this job asks for. Move them to the top of your skills section and make sure at least one bullet proves each of them.`,
+        tag: 'Positioning'
+      });
+    }
+    return out.slice(0, 6);
+  },
+
+  explain(overall, req, pref, parts, r, j) {
+    const band = overall >= 80 ? 'a strong fit' : overall >= 65 ? 'a workable fit' : overall >= 45 ? 'a partial fit' : 'a weak fit on paper';
+    const bits = [];
+    bits.push(`This resume is ${band} for the role, scoring ${overall} out of 100 against CareerLens AI's weighting.`);
+    bits.push(`It covers ${req.matched.length} of ${req.matched.length + req.related.length + req.missing.length} required skills outright${req.related.length ? `, with ${req.related.length} more covered by adjacent experience` : ''}.`);
+    if (req.missing.length) bits.push(`The required skills with no supporting evidence are ${req.missing.join(', ')}.`);
+    else bits.push('Every required skill has supporting evidence in the resume.');
+    bits.push(`Experience scores ${Math.round(parts.experience * 100)}%${j.yearsRequired ? ` against the ${j.yearsRequired}-year expectation` : ''}, education ${Math.round(parts.education * 100)}% and project relevance ${Math.round(parts.projects * 100)}%.`);
+    bits.push('The score reflects alignment with the job text as written. It is not a prediction of whether you will be hired.');
+    return bits.join(' ');
+  }
+};
+
+/* ============================================================
+   6. CHARTS — plain SVG, no chart library needed
+   ============================================================ */
+const Chart = {
+  ring(pct, size = 190) {
+    const stroke = 16, r = (size - stroke) / 2, c = 2 * Math.PI * r;
+    const col = pct >= 80 ? 'var(--ok)' : pct >= 60 ? 'var(--accent)' : pct >= 40 ? 'var(--warn)' : 'var(--bad)';
+    return `<div class="ring-wrap" style="width:${size}px;height:${size}px">
+      <svg width="${size}" height="${size}" viewBox="0 0 ${size} ${size}" aria-hidden="true">
+        <circle cx="${size / 2}" cy="${size / 2}" r="${r}" fill="none" stroke="var(--border)" stroke-width="${stroke}"/>
+        <circle cx="${size / 2}" cy="${size / 2}" r="${r}" fill="none" stroke="${col}" stroke-width="${stroke}"
+          stroke-linecap="round" stroke-dasharray="${c}" stroke-dashoffset="${c * (1 - pct / 100)}"
+          transform="rotate(-90 ${size / 2} ${size / 2})"/>
+      </svg>
+      <div class="ring-label"><b class="num">${pct}%</b><span class="small muted">compatibility</span></div>
+    </div>`;
+  },
+  line(points, w = 560, h = 170) {
+    if (points.length < 2) return `<div class="empty" style="padding:28px"><p class="small muted">Run at least two analyses to see your trend.</p></div>`;
+    const pad = 26, max = 100, step = (w - pad * 2) / (points.length - 1);
+    const xy = points.map((p, i) => [pad + i * step, h - pad - (p.score / max) * (h - pad * 2)]);
+    const path = xy.map((p, i) => (i ? 'L' : 'M') + p[0].toFixed(1) + ' ' + p[1].toFixed(1)).join(' ');
+    const area = path + ` L${xy.at(-1)[0].toFixed(1)} ${h - pad} L${xy[0][0].toFixed(1)} ${h - pad} Z`;
+    const grid = [0, 25, 50, 75, 100].map(v => {
+      const y = h - pad - (v / max) * (h - pad * 2);
+      return `<line x1="${pad}" x2="${w - pad}" y1="${y}" y2="${y}" stroke="var(--border)" stroke-width="1"/>
+              <text x="4" y="${y + 4}" font-size="10" fill="var(--muted-2)">${v}</text>`;
+    }).join('');
+    return `<svg viewBox="0 0 ${w} ${h}" width="100%" height="${h}" role="img" aria-label="Match score over time">
+      <defs><linearGradient id="g1" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="var(--accent)" stop-opacity=".28"/>
+        <stop offset="100%" stop-color="var(--accent)" stop-opacity="0"/></linearGradient></defs>
+      ${grid}
+      <path d="${area}" fill="url(#g1)"/>
+      <path d="${path}" fill="none" stroke="var(--accent)" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>
+      ${xy.map((p, i) => `<circle cx="${p[0]}" cy="${p[1]}" r="4" fill="var(--surface)" stroke="var(--accent)" stroke-width="2.5"><title>${esc(points[i].label)}: ${points[i].score}%</title></circle>`).join('')}
+    </svg>`;
+  },
+  hbars(rows) {
+    if (!rows.length) return `<p class="small muted">Nothing to show yet.</p>`;
+    const max = Math.max(...rows.map(r => r.value), 1);
+    return `<div class="stack" style="gap:12px">` + rows.map(r => `
+      <div>
+        <div class="spread small" style="margin-bottom:5px"><span style="font-weight:600">${esc(r.label)}</span><span class="muted num">${r.value}</span></div>
+        <div class="bar"><i style="width:${(r.value / max * 100).toFixed(0)}%;${r.color ? 'background:' + r.color : ''}"></i></div>
+      </div>`).join('') + `</div>`;
+  }
+};
+
+const ICON = {
+  grid: '<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>',
+  file: '<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/></svg>',
+  brief: '<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/></svg>',
+  spark: '<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l1.9 5.1L19 10l-5.1 1.9L12 17l-1.9-5.1L5 10l5.1-1.9z"/></svg>',
+  clock: '<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>',
+  code: '<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 18l6-6-6-6M8 6l-6 6 6 6"/></svg>',
+  chart: '<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 21h18M7 17V9M12 17V5M17 17v-6"/></svg>',
+  up: '<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5M5 12l7-7 7 7"/></svg>',
+  out: '<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/></svg>',
+  sun: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>'
+};
+
+/* ============================================================
+   7. SAMPLE CONTENT — used by the demo workspace
+   ============================================================ */
+const SAMPLE_RESUME = `Rajendra Kumar
+rajendra.k@example.com | +91 98300 11223 | Kolkata, India | github.com/rajendrak
+
+SUMMARY
+Backend-leaning software engineer with 2 years of experience building Java web services
+and relational data models. Comfortable owning a feature from schema to endpoint.
+
+EDUCATION
+B.Tech in Computer Science and Engineering, 2019 - 2023
+CGPA 8.4 / 10
+
+EXPERIENCE
+Junior Software Engineer, Nexfin Systems, Kolkata
+2023 - Present
+- Built and maintained internal Java services backed by MySQL, handling roughly 40k requests a day.
+- Wrote SQL queries and stored procedures for the reconciliation module, cutting a nightly job from 50 to 18 minutes.
+- Used Git for version control and participated in code review for a team of six.
+
+Software Engineering Intern, Bluewave Labs
+Jan 2023 - Jun 2023
+- Implemented data-parsing utilities in Java and wrote unit tests with JUnit.
+- Automated a manual reporting step using shell scripts on Linux.
+
+PROJECTS
+Campus Placement Tracker
+- Java and MySQL application that tracks student applications and interview rounds.
+- Designed the schema, wrote the queries and built a simple HTML and CSS front end.
+
+Algorithm Practice Repository
+- 300+ solved problems covering arrays, hashing, trees and graphs.
+- Documented approach and complexity for each solution.
+
+TECHNICAL SKILLS
+Languages: Java, SQL
+Web: HTML, CSS, JavaScript basics
+Tools: Git, Maven, Postman, Linux
+Concepts: OOP, Data Structures and Algorithms
+
+CERTIFICATIONS
+Database Design Fundamentals, 2023`;
+
+const SAMPLE_JOBS = [
+  {
+    title: 'Java Backend Developer',
+    company: 'Northwind Technologies',
+    description: `We are hiring a Java Backend Developer to build and scale the services behind our payments platform.
+
+Responsibilities
+- Design, build and maintain REST APIs using Java and Spring Boot.
+- Model and query relational data in MySQL using Spring Data JPA and Hibernate.
+- Write unit and integration tests, and take part in code review.
+- Work in an Agile team with fortnightly releases.
+
+Required
+- 2+ years of professional experience with Java.
+- Strong Spring Boot and REST API development.
+- Solid SQL and MySQL skills.
+- Good grasp of data structures and algorithms.
+- Git based workflow.
+- Bachelor's degree in Computer Science or equivalent.
+
+Preferred
+- Docker and container based deployment.
+- Exposure to AWS.
+- Experience with microservices architecture.
+- Kafka or another message broker.`
+  },
+  {
+    title: 'Full Stack Engineer',
+    company: 'Lumen Retail',
+    description: `Full Stack Engineer to work across our React front end and Node.js services.
+
+Requirements
+- 3+ years building web applications with JavaScript and TypeScript.
+- Strong React skills including hooks and state management.
+- Experience building REST APIs with Node.js and Express.
+- Comfortable with PostgreSQL and writing SQL.
+- HTML and CSS fundamentals.
+- Git and CI/CD pipelines.
+
+Nice to have
+- Docker.
+- AWS deployment experience.
+- GraphQL.`
+  },
+  {
+    title: 'Software Engineer (Graduate)',
+    company: 'Corvus Systems',
+    description: `Graduate Software Engineer role on our platform team.
+
+What you'll need
+- A Bachelor's degree in Computer Science or a related field.
+- Programming ability in Java or Python.
+- Understanding of data structures, algorithms and OOP.
+- Familiarity with SQL databases.
+- Version control with Git.
+- Clear communication and a collaborative approach.
+
+Good to have
+- Exposure to Spring Boot or any web framework.
+- A personal project or internship involving REST APIs.
+- Linux comfort.`
+  }
+];
+
+/* ============================================================
+   8. VIEWS
+   ============================================================ */
+const state = { route: 'landing', sub: null, authTab: 'login', sidebar: false, running: false };
+
+function go(route, sub = null) { state.route = route; state.sub = sub; state.sidebar = false; render(); window.scrollTo({ top: 0 }); }
+
+function applyTheme() {
+  const t = Store.db.theme;
+  if (t) document.documentElement.setAttribute('data-theme', t);
+  else document.documentElement.removeAttribute('data-theme');
+}
+function toggleTheme() {
+  const cur = document.documentElement.getAttribute('data-theme');
+  const prefersDark = matchMedia('(prefers-color-scheme: dark)').matches;
+  const now = cur ? (cur === 'dark' ? 'light' : 'dark') : (prefersDark ? 'light' : 'dark');
+  Store.db.theme = now; Store.save(); applyTheme();
+}
+
+/* ---------------- landing ---------------- */
+function LandingView() {
+  return `
+  <header class="site-nav"><div class="wrap nav-inner">
+    <div class="brand"><span class="logo">CL</span> CareerLens AI</div>
+    <nav class="nav-links">
+      <a href="#features">Features</a><a href="#how">How it works</a><a href="#scoring">Scoring</a><a href="#faq">FAQ</a>
+    </nav>
+    <div class="row">
+      <button class="icon-btn" data-theme-toggle title="Switch theme">${ICON.sun}</button>
+      <button class="btn btn-ghost btn-sm" data-auth="login">Log in</button>
+      <button class="btn btn-primary btn-sm" data-auth="register">Sign up</button>
+    </div>
+  </div></header>
+
+  <section class="hero"><div class="wrap hero-grid">
+    <div>
+      <span class="eyebrow">${ICON.spark} Resume to job description, scored line by line</span>
+      <h1>See exactly why a job description says no.</h1>
+      <p class="lede">CareerLens AI reads your resume, reads the job posting, and shows you the overlap: which required skills you can prove, which ones you only come close to, and what to fix before you apply.</p>
+      <div class="hero-actions">
+        <button class="btn btn-primary btn-lg" data-auth="register">Analyse your resume</button>
+        <button class="btn btn-ghost btn-lg" data-demo>Open the demo workspace</button>
+      </div>
+      <div class="hero-stats">
+        <div><b class="num">${Object.keys(SKILLS).length}</b><span class="small muted">skills in the taxonomy</span></div>
+        <div><b class="num">5</b><span class="small muted">weighted scoring factors</span></div>
+        <div><b>PDF · DOCX</b><span class="small muted">parsed in your browser</span></div>
+      </div>
+    </div>
+    <div class="preview">
+      <div class="preview-top"><i></i><i></i><i></i></div>
+      <div class="spread" style="margin-bottom:16px">
+        <div><div class="tiny muted">Resume_Java.pdf → Java Backend Developer</div><div style="font-weight:700;font-size:15px">Compatibility breakdown</div></div>
+        <span class="chip chip-accent">Live</span>
+      </div>
+      <div class="row" style="gap:20px;align-items:center">
+        ${Chart.ring(76, 132)}
+        <div class="bars-list" style="flex:1">
+          ${[['Required skills', 72], ['Preferred skills', 50], ['Experience', 80], ['Education', 100], ['Projects', 65]].map(([l, v]) => `
+            <div class="bar-row"><div class="spread"><span>${l}</span><span class="muted num">${v}%</span></div><div class="bar"><i style="width:${v}%"></i></div></div>`).join('')}
+        </div>
+      </div>
+      <div class="divider"></div>
+      <div class="chips">
+        <span class="chip chip-ok">✓ Java</span><span class="chip chip-ok">✓ SQL</span><span class="chip chip-ok">✓ Git</span>
+        <span class="chip chip-warn">~ REST APIs</span><span class="chip chip-bad">✗ Spring Boot</span><span class="chip chip-bad">✗ Docker</span>
+      </div>
+    </div>
+  </div></section>
+
+  <section class="sec" id="features"><div class="wrap">
+    <h2>What the platform does</h2>
+    <p class="sub">Every number on the results page traces back to something the parser actually found in your documents.</p>
+    <div class="feature-grid">
+      ${[
+        ['file', 'Resume parsing', 'Upload a PDF or DOCX and the text is pulled out, split into sections, and turned into structured fields: contact details, education, experience, projects and skills.'],
+        ['brief', 'Job requirement analysis', 'The job description is split into required and preferred requirements, with the experience level and education expectation read out of the text.'],
+        ['spark', 'Skill and semantic matching', 'Aliases are normalised, so "RESTful web services" and "REST APIs" resolve to the same skill, and adjacent skills earn partial credit instead of being marked absent.'],
+        ['chart', 'Transparent scoring', 'A fixed, published weighting produces the score. Nothing asks a language model to pick a percentage.'],
+        ['up', 'Skill gap analysis', 'Gaps are split into critical required skills, partial matches you should reword, and preferred extras worth picking up.'],
+        ['clock', 'Analysis history', 'Every run is saved, so you can compare resume versions against the same job and watch the score move.']
+      ].map(([i, t, d]) => `<article class="feature"><div class="ico">${ICON[i]}</div><h3>${t}</h3><p class="small muted">${d}</p></article>`).join('')}
+    </div>
+  </div></section>
+
+  <section class="sec" id="how"><div class="wrap">
+    <h2>How it works</h2>
+    <p class="sub">Four steps from a file on your desktop to a list of things to fix.</p>
+    <div class="steps">
+      ${[
+        ['Add your resume', 'Upload a PDF or DOCX, or paste the text. The file is read in your browser.'],
+        ['Add the job', 'Paste the job description and save it with a title and company.'],
+        ['Run the analysis', 'The engine matches skills, weighs five factors and writes the explanation.'],
+        ['Fix and re-run', 'Edit your resume, upload the new version, and compare the scores side by side.']
+      ].map(([t, d]) => `<div class="step"><h3>${t}</h3><p class="small muted">${d}</p></div>`).join('')}
+    </div>
+  </div></section>
+
+  <section class="sec" id="scoring"><div class="wrap">
+    <div class="grid two-col" style="align-items:center">
+      <div>
+        <h2>The score is a formula, not a guess</h2>
+        <p class="sub">Each factor carries a fixed weight. You can see every input that fed into it on the results page, including the skills that were matched only through an adjacent one.</p>
+        <p class="small muted" style="margin-top:16px">A compatibility score describes alignment with the job text as written. It is not a prediction of whether you will be hired.</p>
+      </div>
+      <div class="card pad-lg">
+        ${Object.entries(WEIGHTS).map(([k, v]) => `
+          <div class="bar-row" style="margin-bottom:14px">
+            <div class="spread"><span style="text-transform:capitalize;font-weight:600">${k === 'required' ? 'Required skill match' : k === 'preferred' ? 'Preferred skill match' : k === 'experience' ? 'Experience relevance' : k === 'education' ? 'Education match' : 'Project relevance'}</span><span class="muted num">${v * 100}%</span></div>
+            <div class="bar"><i style="width:${v * 100 * 2}%"></i></div>
+          </div>`).join('')}
+        <pre class="code" style="margin-top:18px">Final score =
+  required  × 0.50
++ preferred × 0.15
++ experience× 0.15
++ education × 0.10
++ projects  × 0.10</pre>
+      </div>
+    </div>
+  </div></section>
+
+  <section class="sec faq" id="faq"><div class="wrap" style="max-width:820px">
+    <h2>Questions</h2>
+    ${[
+      ['Where does my resume go?', 'Nowhere. The file is parsed in your browser and the extracted text is stored in this browser only. Nothing is uploaded to a server in this build.'],
+      ['Which file formats work?', 'PDF, DOCX, TXT and Markdown. If a PDF is a scan rather than real text, there is nothing to extract, so paste the text instead.'],
+      ['Why did it miss a skill I have?', 'The parser matches against a skill taxonomy with aliases. If a skill appears only as an abbreviation the taxonomy does not know, it will be missed. That is also useful information, since most applicant tracking systems scan the same way.'],
+      ['Does a high score mean I will get the job?', 'No. It means your resume reflects what this specific posting asks for. Hiring depends on many things a document cannot show.'],
+      ['Can I compare two versions of my resume?', 'Yes. Upload both, run each against the same job, and the history page will show the scores together.']
+    ].map(([q, a]) => `<details><summary>${q}</summary><p>${a}</p></details>`).join('')}
+  </div></section>
+
+  <div class="cta-band"><div class="cta-inner">
+    <h2>Find out where your resume falls short</h2>
+    <p>Create an account, or open the demo workspace with a sample resume and three job descriptions already loaded.</p>
+    <div class="row" style="justify-content:center"><button class="btn btn-lg" data-auth="register">Create an account</button>
+    <button class="btn btn-lg btn-ghost" style="color:#fff;border-color:rgba(255,255,255,.5)" data-demo>Open the demo</button></div>
+  </div></div>
+
+  <footer class="site"><div class="wrap spread">
+    <div class="brand" style="font-size:15px"><span class="logo" style="width:26px;height:26px;font-size:12px">CL</span> CareerLens AI</div>
+    <span>Resume and job matching, scored transparently.</span>
+  </div></footer>`;
+}
+
+/* ---------------- auth ---------------- */
+function AuthView() {
+  const isLogin = state.authTab === 'login';
+  return `<div class="auth-wrap"><div class="auth-card">
+    <div class="row" style="justify-content:center;margin-bottom:22px">
+      <button class="brand" style="background:none;border:0;cursor:pointer" data-home><span class="logo">CL</span> CareerLens AI</button>
+    </div>
+    <div class="card pad-lg">
+      <div class="tabs">
+        <button class="${isLogin ? 'on' : ''}" data-tab="login">Log in</button>
+        <button class="${!isLogin ? 'on' : ''}" data-tab="register">Sign up</button>
+      </div>
+      <form id="authForm" novalidate>
+        ${isLogin ? '' : `<div style="margin-bottom:14px"><label class="label" for="f-name">Full name</label><input class="field" id="f-name" autocomplete="name" placeholder="Rajendra Kumar"></div>`}
+        <div style="margin-bottom:14px"><label class="label" for="f-email">Email</label><input class="field" id="f-email" type="email" autocomplete="email" placeholder="you@example.com"></div>
+        <div><label class="label" for="f-pw">Password</label><input class="field" id="f-pw" type="password" autocomplete="${isLogin ? 'current-password' : 'new-password'}" placeholder="At least 6 characters"></div>
+        ${isLogin ? '' : `<div style="margin-top:14px"><label class="label" for="f-pw2">Confirm password</label><input class="field" id="f-pw2" type="password" autocomplete="new-password"></div>`}
+        <p class="err" id="authErr"></p>
+        <button class="btn btn-primary btn-block" type="submit">${isLogin ? 'Log in' : 'Create account'}</button>
+      </form>
+      <div class="divider"></div>
+      <button class="btn btn-ghost btn-block" data-demo>Open the demo workspace instead</button>
+      <p class="help" style="text-align:center;margin-top:14px">Accounts live in this browser only. Do not reuse a password you use elsewhere.</p>
+    </div>
+  </div></div>`;
+}
+
+/* ---------------- app shell ---------------- */
+function Shell(title, body, actions = '') {
+  const u = Store.me();
+  const nav = [
+    ['dashboard', 'Dashboard', 'grid'], ['resumes', 'Resumes', 'file'],
+    ['jobs', 'Job descriptions', 'brief'], ['analyze', 'New analysis', 'spark'],
+    ['history', 'History', 'clock'], ['api', 'API & schema', 'code']
+  ];
+  return `<div class="app">
+    <aside class="side ${state.sidebar ? 'open' : ''}">
+      <div class="brand"><span class="logo">CL</span> CareerLens AI</div>
+      <div class="nav-group">WORKSPACE</div>
+      ${nav.slice(0, 5).map(([r, l, i]) => `<button class="nav-item ${state.route === r ? 'on' : ''}" data-go="${r}">${ICON[i]} ${l}</button>`).join('')}
+      <div class="nav-group">REFERENCE</div>
+      <button class="nav-item ${state.route === 'api' ? 'on' : ''}" data-go="api">${ICON.code} API &amp; schema</button>
+      <div class="side-foot">
+        <div class="row" style="padding:6px 4px">
+          <div class="avatar">${esc((u.name[0] || 'U').toUpperCase())}</div>
+          <div style="min-width:0;flex:1">
+            <div class="small" style="font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(u.name)}</div>
+            <div class="tiny muted" style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(u.email)}</div>
+          </div>
+        </div>
+        <button class="nav-item" data-logout>${ICON.out} Log out</button>
+      </div>
+    </aside>
+    <div class="main">
+      <div class="topbar">
+        <div class="row">
+          <button class="icon-btn burger" data-burger aria-label="Open menu">
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 6h18M3 12h18M3 18h18"/></svg>
+          </button>
+          <h1>${esc(title)}</h1>
+        </div>
+        <div class="row">${actions}<button class="icon-btn" data-theme-toggle title="Switch theme">${ICON.sun}</button></div>
+      </div>
+      <div class="content">${body}</div>
+    </div>
+  </div>`;
+}
+
+/* ---------------- dashboard ---------------- */
+function DashboardView() {
+  const u = Store.me();
+  const resumes = Store.mine('resumes'), jobs = Store.mine('jobs');
+  const analyses = Store.mine('analyses').sort((a, b) => b.createdAt - a.createdAt);
+  const avg = analyses.length ? Math.round(analyses.reduce((s, a) => s + a.result.overall, 0) / analyses.length) : 0;
+  const best = analyses.length ? Math.max(...analyses.map(a => a.result.overall)) : 0;
+
+  const gapCount = {};
+  analyses.forEach(a => a.result.req.missing.forEach(s => gapCount[s] = (gapCount[s] || 0) + 1));
+  const topGaps = Object.entries(gapCount).sort((a, b) => b[1] - a[1]).slice(0, 6).map(([label, value]) => ({ label, value, color: 'var(--bad)' }));
+
+  const skillCount = {};
+  resumes.forEach(r => r.parsed.skills.forEach(s => skillCount[s] = (skillCount[s] || 0) + 1));
+  const topSkills = Object.entries(skillCount).sort((a, b) => b[1] - a[1]).slice(0, 6).map(([label, value]) => ({ label, value, color: 'var(--ok)' }));
+
+  const trend = analyses.slice(0, 10).reverse().map(a => ({ score: a.result.overall, label: a.jobTitle }));
+
+  const kpi = (k, v, d, icon) => `<div class="card kpi"><div class="spread"><div><div class="k">${k}</div><div class="v num">${v}</div><div class="d">${d}</div></div><div class="ico">${ICON[icon]}</div></div></div>`;
+
+  if (!analyses.length && !resumes.length) {
+    return `<div class="stack">
+      <div class="card pad-lg">
+        <h2 style="font-size:20px">Welcome, ${esc(u.name.split(' ')[0])}</h2>
+        <p class="muted small" style="margin-top:8px;max-width:62ch">Your workspace is empty. Add a resume and a job description, and the analysis takes a few seconds.</p>
+        <div class="row row-wrap" style="margin-top:20px">
+          <button class="btn btn-primary" data-go="resumes">Add a resume</button>
+          <button class="btn btn-ghost" data-go="jobs">Add a job description</button>
+          <button class="btn btn-soft" data-seed>Load sample data</button>
+        </div>
+      </div>
+      <div class="grid feature-grid" style="margin-top:0">
+        ${[['file', 'Step 1 — Resume', 'Upload a PDF or DOCX, or paste the text. You can keep several versions.'],
+           ['brief', 'Step 2 — Job description', 'Paste the posting. The required and preferred requirements are pulled out for you.'],
+           ['spark', 'Step 3 — Analyse', 'Pick one of each and run. The score, gaps and fixes appear together.']]
+          .map(([i, t, d]) => `<div class="feature"><div class="ico">${ICON[i]}</div><h3>${t}</h3><p class="small muted">${d}</p></div>`).join('')}
+      </div></div>`;
+  }
+
+  return `<div class="stack">
+    <div class="grid kpis">
+      ${kpi('Resumes uploaded', resumes.length, resumes.length ? `${resumes.reduce((s, r) => s + r.parsed.skills.length, 0)} skills detected in total` : 'Add your first resume', 'file')}
+      ${kpi('Jobs analysed', analyses.length, `${jobs.length} job description${jobs.length === 1 ? '' : 's'} saved`, 'brief')}
+      ${kpi('Average match', avg + '%', analyses.length ? `across ${analyses.length} analys${analyses.length === 1 ? 'is' : 'es'}` : 'no analyses yet', 'chart')}
+      ${kpi('Best match', best + '%', analyses.length ? esc(analyses.reduce((a, b) => a.result.overall > b.result.overall ? a : b).jobTitle) : '—', 'up')}
+    </div>
+
+    <div class="grid g-split">
+      <div class="card pad">
+        <div class="spread" style="margin-bottom:6px"><h3 style="font-size:16px">Match score over time</h3><span class="small muted">last ${Math.min(analyses.length, 10)} runs</span></div>
+        ${Chart.line(trend)}
+      </div>
+      <div class="card pad">
+        <h3 style="font-size:16px;margin-bottom:16px">Skills most often missing</h3>
+        ${Chart.hbars(topGaps)}
+        ${topGaps.length ? `<p class="help">Fixing the top one lifts several applications at once.</p>` : ''}
+      </div>
+    </div>
+
+    <div class="grid g-split">
+      <div class="card pad">
+        <div class="spread" style="margin-bottom:14px"><h3 style="font-size:16px">Recent analyses</h3><button class="btn btn-ghost btn-sm" data-go="history">View all</button></div>
+        ${analyses.length ? `<div class="scroll-x"><table>
+          <thead><tr><th>Resume</th><th>Job</th><th>Date</th><th style="text-align:right">Score</th></tr></thead>
+          <tbody>${analyses.slice(0, 6).map(a => `<tr style="cursor:pointer" data-open-analysis="${a.id}">
+            <td style="font-weight:600">${esc(a.resumeName)}</td>
+            <td>${esc(a.jobTitle)}<div class="tiny muted">${esc(a.company || '')}</div></td>
+            <td class="muted small">${fmtDate(a.createdAt)}</td>
+            <td style="text-align:right"><span class="chip ${a.result.overall >= 75 ? 'chip-ok' : a.result.overall >= 50 ? 'chip-warn' : 'chip-bad'} num">${a.result.overall}%</span></td>
+          </tr>`).join('')}</tbody></table></div>` : `<p class="small muted">No analyses yet.</p>`}
+      </div>
+      <div class="card pad">
+        <h3 style="font-size:16px;margin-bottom:16px">Your strongest signals</h3>
+        ${Chart.hbars(topSkills)}
+        <div class="divider"></div>
+        <button class="btn btn-primary btn-block" data-go="analyze">Run a new analysis</button>
+      </div>
+    </div>
+  </div>`;
+}
+
+/* ---------------- resumes ---------------- */
+function ResumesView() {
+  const list = Store.mine('resumes').sort((a, b) => b.createdAt - a.createdAt);
+  return `<div class="stack">
+    <div class="card pad-lg">
+      <h3 style="font-size:17px">Add a resume</h3>
+      <p class="small muted" style="margin:8px 0 18px">PDF, DOCX, TXT or Markdown. The file is read in this browser and never uploaded.</p>
+      <div class="drop" id="drop" tabindex="0" role="button">
+        <div style="font-size:26px">📄</div>
+        <div style="font-weight:600;margin-top:8px">Drop a file here, or choose one</div>
+        <div class="small muted">Maximum 5 MB</div>
+        <input type="file" id="fileInput" accept=".pdf,.docx,.txt,.md" class="hidden">
+      </div>
+      <details style="margin-top:16px">
+        <summary class="small" style="cursor:pointer;font-weight:600">Paste the text instead</summary>
+        <div style="margin-top:12px">
+          <input class="field" id="pasteName" placeholder="Name this version, e.g. Resume_Backend" style="margin-bottom:10px">
+          <textarea class="field" id="pasteText" placeholder="Paste your full resume text here"></textarea>
+          <div class="row" style="margin-top:10px">
+            <button class="btn btn-primary btn-sm" data-paste-save>Save resume</button>
+            <button class="btn btn-ghost btn-sm" data-paste-sample>Fill with the sample resume</button>
+          </div>
+        </div>
+      </details>
+      <p class="err" id="upErr"></p>
+    </div>
+
+    ${list.length ? `<div class="stack">
+      <h3 style="font-size:16px">My resumes <span class="muted num small">(${list.length})</span></h3>
+      ${list.map(r => `<div class="card pad">
+        <div class="spread">
+          <div class="row" style="min-width:0">
+            <div class="file-ico">${esc((r.ext || 'TXT').toUpperCase())}</div>
+            <div style="min-width:0">
+              <div style="font-weight:700">${esc(r.name)}</div>
+              <div class="tiny muted">${fmtDate(r.createdAt)} · ${fmtSize(r.size)} · ${r.parsed.words} words · ${r.parsed.skills.length} skills</div>
+            </div>
+          </div>
+          <div class="row">
+            <button class="btn btn-ghost btn-sm" data-view-resume="${r.id}">View parsed data</button>
+            <button class="btn btn-soft btn-sm" data-analyze-resume="${r.id}">Analyse</button>
+            <button class="btn btn-danger btn-sm" data-del-resume="${r.id}">Delete</button>
+          </div>
+        </div>
+        <div class="chips" style="margin-top:14px">
+          ${r.parsed.skills.slice(0, 14).map(s => `<span class="chip">${esc(s)}</span>`).join('')}
+          ${r.parsed.skills.length > 14 ? `<span class="chip chip-accent">+${r.parsed.skills.length - 14} more</span>` : ''}
+        </div>
+      </div>`).join('')}
+    </div>` : `<div class="empty"><h3>No resumes yet</h3><p class="small muted">Add one above, or <button class="btn btn-soft btn-sm" data-seed style="margin-left:6px">load the sample data</button></p></div>`}
+  </div>`;
+}
+
+function ResumeDetail(r) {
+  const p = r.parsed;
+  const row = (k, v) => `<div class="spread small" style="padding:9px 0;border-bottom:1px solid var(--border)"><span class="muted">${k}</span><span style="font-weight:600;text-align:right">${esc(v)}</span></div>`;
+  return `<div class="stack">
+    <button class="btn btn-ghost btn-sm" data-go="resumes" style="align-self:flex-start">← Back to resumes</button>
+    <div class="grid two-col">
+      <div class="card pad-lg">
+        <h3 style="font-size:16px;margin-bottom:12px">Extracted fields</h3>
+        ${row('Name', p.name)}${row('Email', p.email)}${row('Phone', p.phone)}
+        ${row('Education', p.education.label)}${row('Experience detected', p.years ? p.years + ' years' : 'Not detected')}
+        ${row('Projects detected', p.projectCount)}${row('Words parsed', p.words)}
+        <h3 style="font-size:16px;margin:22px 0 12px">Skills by category</h3>
+        ${Object.entries(p.skillsByCat).map(([cat, arr]) => `
+          <div style="margin-bottom:12px"><div class="tiny muted" style="margin-bottom:6px">${esc(cat)}</div>
+          <div class="chips">${arr.map(s => `<span class="chip chip-accent">${esc(s)}</span>`).join('')}</div></div>`).join('') || '<p class="small muted">No skills matched the taxonomy.</p>'}
+      </div>
+      <div class="card pad-lg">
+        <h3 style="font-size:16px;margin-bottom:12px">Sections the parser found</h3>
+        ${Object.entries(p.sections).filter(([, v]) => v.trim()).map(([k, v]) => `
+          <details style="border:1px solid var(--border);border-radius:var(--r-m);padding:12px;margin-bottom:10px">
+            <summary style="cursor:pointer;font-weight:600;font-size:14px;text-transform:capitalize">${k}</summary>
+            <pre class="code" style="margin-top:10px;white-space:pre-wrap">${esc(v.trim().slice(0, 1200))}</pre>
+          </details>`).join('') || '<p class="small muted">No headed sections were detected. The whole document was treated as one block.</p>'}
+        <div class="row" style="margin-top:16px">
+          <button class="btn btn-primary btn-sm" data-analyze-resume="${r.id}">Analyse this resume</button>
+        </div>
+      </div>
+    </div>
+  </div>`;
+}
+
+/* ---------------- jobs ---------------- */
+function JobsView() {
+  const list = Store.mine('jobs').sort((a, b) => b.createdAt - a.createdAt);
+  return `<div class="stack">
+    <div class="card pad-lg">
+      <h3 style="font-size:17px">Add a job description</h3>
+      <p class="small muted" style="margin:8px 0 18px">Paste the posting exactly as published. Headings like “Required” and “Nice to have” are used to separate must-haves from extras.</p>
+      <div class="grid two-col" style="gap:14px">
+        <div><label class="label" for="j-title">Job title</label><input class="field" id="j-title" placeholder="Java Backend Developer"></div>
+        <div><label class="label" for="j-company">Company</label><input class="field" id="j-company" placeholder="Northwind Technologies"></div>
+      </div>
+      <div style="margin-top:14px"><label class="label" for="j-desc">Job description</label>
+        <textarea class="field" id="j-desc" style="min-height:200px" placeholder="Paste the full description, including the requirements list"></textarea></div>
+      <p class="err" id="jobErr"></p>
+      <div class="row row-wrap">
+        <button class="btn btn-primary" data-job-save>Save job description</button>
+        <button class="btn btn-ghost" data-job-sample>Fill with a sample posting</button>
+      </div>
+    </div>
+
+    ${list.length ? `<div class="stack">
+      <h3 style="font-size:16px">Saved jobs <span class="muted num small">(${list.length})</span></h3>
+      ${list.map(j => `<div class="card pad">
+        <div class="spread">
+          <div><div style="font-weight:700">${esc(j.title)}</div><div class="tiny muted">${esc(j.company || 'No company')} · saved ${fmtDate(j.createdAt)}</div></div>
+          <div class="row">
+            <button class="btn btn-soft btn-sm" data-analyze-job="${j.id}">Analyse</button>
+            <button class="btn btn-danger btn-sm" data-del-job="${j.id}">Delete</button>
+          </div>
+        </div>
+        <div class="divider" style="margin:14px 0"></div>
+        <div class="grid two-col" style="gap:16px">
+          <div><div class="tiny muted" style="margin-bottom:7px">Required (${j.parsed.required.length})</div>
+            <div class="chips">${j.parsed.required.map(s => `<span class="chip chip-accent">${esc(s)}</span>`).join('') || '<span class="small muted">None detected</span>'}</div></div>
+          <div><div class="tiny muted" style="margin-bottom:7px">Preferred (${j.parsed.preferred.length})</div>
+            <div class="chips">${j.parsed.preferred.map(s => `<span class="chip">${esc(s)}</span>`).join('') || '<span class="small muted">None detected</span>'}</div></div>
+        </div>
+        <p class="help">Experience expected: ${j.parsed.yearsRequired ? j.parsed.yearsRequired + '+ years' : 'not stated'} · Education: ${esc(j.parsed.education.label)}</p>
+      </div>`).join('')}
+    </div>` : `<div class="empty"><h3>No job descriptions saved</h3><p class="small muted">Paste one above to see its requirements broken out.</p></div>`}
+  </div>`;
+}
+
+/* ---------------- analyse ---------------- */
+function AnalyzeView() {
+  const resumes = Store.mine('resumes'), jobs = Store.mine('jobs');
+  if (!resumes.length || !jobs.length) {
+    return `<div class="empty">
+      <h3>You need one resume and one job description</h3>
+      <p class="small muted" style="margin-bottom:16px">You have ${resumes.length} resume${resumes.length === 1 ? '' : 's'} and ${jobs.length} job description${jobs.length === 1 ? '' : 's'}.</p>
+      <div class="row" style="justify-content:center">
+        ${!resumes.length ? '<button class="btn btn-primary btn-sm" data-go="resumes">Add a resume</button>' : ''}
+        ${!jobs.length ? '<button class="btn btn-primary btn-sm" data-go="jobs">Add a job description</button>' : ''}
+        <button class="btn btn-soft btn-sm" data-seed>Load sample data</button>
+      </div></div>`;
+  }
+  const sel = state.sub || {};
+  return `<div class="stack">
+    <div class="grid two-col">
+      <div class="card pad-lg">
+        <h3 style="font-size:16px;margin-bottom:4px">1. Choose a resume</h3>
+        <p class="small muted" style="margin-bottom:16px">Compare versions by running each against the same job.</p>
+        <div class="stack" style="gap:10px">
+          ${resumes.map(r => `<div class="pick ${sel.resumeId === r.id ? 'on' : ''}" data-pick-resume="${r.id}">
+            <span class="radio"></span>
+            <div style="min-width:0"><div style="font-weight:600;font-size:14px">${esc(r.name)}</div>
+            <div class="tiny muted">${r.parsed.skills.length} skills · ${r.parsed.years || 0} yrs · ${esc(r.parsed.education.label)}</div></div>
+          </div>`).join('')}
+        </div>
+      </div>
+      <div class="card pad-lg">
+        <h3 style="font-size:16px;margin-bottom:4px">2. Choose a job description</h3>
+        <p class="small muted" style="margin-bottom:16px">The requirements below were read out of the posting text.</p>
+        <div class="stack" style="gap:10px">
+          ${jobs.map(j => `<div class="pick ${sel.jobId === j.id ? 'on' : ''}" data-pick-job="${j.id}">
+            <span class="radio"></span>
+            <div style="min-width:0"><div style="font-weight:600;font-size:14px">${esc(j.title)}</div>
+            <div class="tiny muted">${esc(j.company || '—')} · ${j.parsed.required.length} required, ${j.parsed.preferred.length} preferred</div></div>
+          </div>`).join('')}
+        </div>
+      </div>
+    </div>
+    <div class="card pad-lg">
+      <div class="spread">
+        <div>
+          <h3 style="font-size:16px">3. Run the analysis</h3>
+          <p class="small muted" style="margin-top:6px">${sel.resumeId && sel.jobId ? 'Ready. Five factors, one weighted score, and the reasoning behind it.' : 'Pick one resume and one job description above.'}</p>
+        </div>
+        <button class="btn btn-primary btn-lg" data-run ${sel.resumeId && sel.jobId ? '' : 'disabled'}>Run analysis</button>
+      </div>
+      <div id="runSteps" class="hidden" style="margin-top:18px">
+        ${['Reading the resume text', 'Extracting structured fields', 'Reading job requirements', 'Matching skills and semantics', 'Scoring and writing the analysis']
+          .map((s, i) => `<div class="run-step" data-step="${i}"><span class="dot"></span>${s}</div>`).join('')}
+      </div>
+    </div>
+  </div>`;
+}
+
+/* ---------------- results ---------------- */
+function ResultView(a) {
+  const R = a.result, p = R.parts;
+  const bar = (label, v, note) => `<div class="bar-row">
+    <div class="spread"><span>${label}</span><span class="muted num">${Math.round(v * 100)}%</span></div>
+    <div class="bar"><i style="width:${Math.round(v * 100)}%"></i></div>
+    ${note ? `<div class="tiny muted" style="margin-top:5px">${note}</div>` : ''}</div>`;
+
+  const gapGroup = (sev, title, tone) => {
+    const items = R.gaps.filter(g => g.severity === sev);
+    if (!items.length) return '';
+    return `<div style="margin-bottom:18px">
+      <div class="spread" style="margin-bottom:9px"><h4 style="font-size:14px">${title}</h4><span class="chip ${tone} num">${items.length}</span></div>
+      <div class="stack" style="gap:8px">${items.map(g => `
+        <div class="spread small" style="padding:10px 13px;border:1px solid var(--border);border-radius:var(--r-m);background:var(--surface-2)">
+          <span style="font-weight:600">${esc(g.skill)}</span>
+          <span class="muted tiny">${g.via ? (g.strong ? 'close to ' : 'only implied by ') + esc(g.via.join(', ')) : esc(g.cat)}</span>
+        </div>`).join('')}</div></div>`;
+  };
+
+  return `<div class="stack">
+    <div class="spread">
+      <button class="btn btn-ghost btn-sm" data-go="history">← Back to history</button>
+      <div class="row">
+        <button class="btn btn-ghost btn-sm" data-print>Print or save as PDF</button>
+        <button class="btn btn-soft btn-sm" data-go="analyze">Run another</button>
+      </div>
+    </div>
+
+    <div class="card pad-lg">
+      <div class="score-hero">
+        ${Chart.ring(R.overall)}
+        <div style="width:100%">
+          <div class="tiny muted">${esc(a.resumeName)} → ${esc(a.jobTitle)}${a.company ? ' at ' + esc(a.company) : ''}</div>
+          <h2 style="font-size:21px;margin:6px 0 16px">${R.overall >= 80 ? 'Strong alignment with this posting' : R.overall >= 65 ? 'Workable, with clear gaps to close' : R.overall >= 45 ? 'Partial alignment' : 'Weak alignment on paper'}</h2>
+          <div class="bars-list">
+            ${bar('Required skills · 50%', p.required, `${R.req.matched.length} matched, ${R.req.related.length} partial, ${R.req.missing.length} missing`)}
+            ${bar('Preferred skills · 15%', p.preferred, `${R.pref.matched.length} of ${R.pref.matched.length + R.pref.related.length + R.pref.missing.length} present`)}
+            ${bar('Experience relevance · 15%', p.experience, R.snapshot.requiredYears ? `${R.snapshot.candidateYears || 0} years detected against ${R.snapshot.requiredYears} asked` : `${R.snapshot.candidateYears || 0} years detected, none specified in the posting`)}
+            ${bar('Education match · 10%', p.education, `${esc(R.snapshot.education)} against ${esc(R.snapshot.educationAsked)}`)}
+            ${bar('Project relevance · 10%', p.projects, 'how much of the job stack appears in your project work')}
+          </div>
+        </div>
+      </div>
+      <div class="divider"></div>
+      <p class="small" style="color:var(--ink-2);max-width:78ch">${esc(R.explanation)}</p>
+      <div class="chips" style="margin-top:14px">
+        <span class="chip">Text similarity ${Math.round(R.semantic * 100)}%</span>
+        <span class="chip">${R.snapshot.skillsFound} skills detected in resume</span>
+        <span class="chip">Analysed ${fmtDate(a.createdAt)}</span>
+      </div>
+    </div>
+
+    <div class="grid two-col">
+      <div class="card pad-lg">
+        <h3 style="font-size:16px;margin-bottom:14px">Skill match</h3>
+        <div class="tiny muted" style="margin-bottom:8px">Matched outright</div>
+        <div class="chips">${R.req.matched.concat(R.pref.matched).map(s => `<span class="chip chip-ok">✓ ${esc(s)}</span>`).join('') || '<span class="small muted">None</span>'}</div>
+        <div class="tiny muted" style="margin:16px 0 8px">Matched through a related skill</div>
+        <div class="chips">${R.req.related.concat(R.pref.related).map(g => `<span class="chip chip-warn" title="via ${esc(g.via.join(', '))}">~ ${esc(g.skill)}</span>`).join('') || '<span class="small muted">None</span>'}</div>
+        <div class="tiny muted" style="margin:16px 0 8px">Not found</div>
+        <div class="chips">${R.req.missing.concat(R.pref.missing).map(s => `<span class="chip chip-bad">✗ ${esc(s)}</span>`).join('') || '<span class="small muted">Nothing missing</span>'}</div>
+      </div>
+      <div class="card pad-lg">
+        <h3 style="font-size:16px;margin-bottom:16px">Skill gap analysis</h3>
+        ${gapGroup('critical', 'Critical — required and absent', 'chip-bad')}
+        ${gapGroup('partial', 'Partial — reword to claim it', 'chip-warn')}
+        ${gapGroup('preferred', 'Preferred — worth picking up', 'chip-accent')}
+        ${R.gaps.length ? '' : '<p class="small muted">No gaps found against this posting.</p>'}
+      </div>
+    </div>
+
+    <div class="card pad-lg">
+      <h3 style="font-size:16px">What to change</h3>
+      <p class="small muted" style="margin:6px 0 18px;max-width:72ch">These come from what is actually in your resume and the posting. Nothing here asks you to claim a skill, project or certification you do not have.</p>
+      <div class="grid g-half">
+        ${R.recommendations.map((r, i) => `<div class="rec">
+          <span class="n num">${i + 1}</span>
+          <div><h4>${esc(r.title)}</h4><p class="small muted">${esc(r.body)}</p>
+          <span class="chip chip-accent tiny" style="margin-top:8px">${esc(r.tag)}</span></div>
+        </div>`).join('')}
+      </div>
+    </div>
+  </div>`;
+}
+
+/* ---------------- history ---------------- */
+function HistoryView() {
+  const list = Store.mine('analyses').sort((a, b) => b.createdAt - a.createdAt);
+  if (!list.length) return `<div class="empty"><h3>No analyses yet</h3><p class="small muted" style="margin-bottom:16px">Run your first one to start tracking.</p><button class="btn btn-primary btn-sm" data-go="analyze">Run an analysis</button></div>`;
+
+  const byJob = {};
+  list.forEach(a => (byJob[a.jobTitle] = byJob[a.jobTitle] || []).push(a));
+  const compare = Object.entries(byJob).filter(([, arr]) => arr.length > 1);
+
+  return `<div class="stack">
+    <div class="card pad">
+      <div class="scroll-x"><table>
+        <thead><tr><th>Resume</th><th>Job</th><th>Required skills</th><th>Date</th><th style="text-align:right">Score</th><th></th></tr></thead>
+        <tbody>${list.map(a => `<tr>
+          <td style="font-weight:600;cursor:pointer" data-open-analysis="${a.id}">${esc(a.resumeName)}</td>
+          <td style="cursor:pointer" data-open-analysis="${a.id}">${esc(a.jobTitle)}<div class="tiny muted">${esc(a.company || '')}</div></td>
+          <td class="small muted num">${a.result.req.matched.length}/${a.result.req.matched.length + a.result.req.related.length + a.result.req.missing.length} matched</td>
+          <td class="small muted">${fmtDate(a.createdAt)}</td>
+          <td style="text-align:right"><span class="chip ${a.result.overall >= 75 ? 'chip-ok' : a.result.overall >= 50 ? 'chip-warn' : 'chip-bad'} num">${a.result.overall}%</span></td>
+          <td style="text-align:right"><button class="btn btn-danger btn-sm" data-del-analysis="${a.id}">Delete</button></td>
+        </tr>`).join('')}</tbody></table></div>
+    </div>
+    ${compare.length ? `<div class="card pad-lg">
+      <h3 style="font-size:16px;margin-bottom:6px">Resume versions compared</h3>
+      <p class="small muted" style="margin-bottom:18px">Where you have run more than one resume against the same job.</p>
+      ${compare.map(([job, arr]) => `<div style="margin-bottom:20px">
+        <div style="font-weight:700;font-size:14px;margin-bottom:10px">${esc(job)}</div>
+        ${Chart.hbars(arr.map(a => ({ label: a.resumeName, value: a.result.overall })))}
+      </div>`).join('')}
+    </div>` : ''}
+  </div>`;
+}
+
+/* ---------------- API & schema reference ---------------- */
+function ApiView() {
+  const eps = [
+    ['POST', '/api/auth/register', 'Create an account. Returns a JWT.'],
+    ['POST', '/api/auth/login', 'Authenticate and return a JWT.'],
+    ['POST', '/api/resumes', 'Upload a resume (multipart). Parses and stores the structured data.'],
+    ['GET', '/api/resumes', 'List the signed-in user’s resumes.'],
+    ['GET', '/api/resumes/{id}', 'Fetch one resume with its parsed fields.'],
+    ['DELETE', '/api/resumes/{id}', 'Delete a resume and its analyses.'],
+    ['POST', '/api/jobs', 'Save a job description and extract its requirements.'],
+    ['GET', '/api/jobs', 'List saved job descriptions.'],
+    ['DELETE', '/api/jobs/{id}', 'Delete a job description.'],
+    ['POST', '/api/match', 'Run the matching engine for a resume and job pair.'],
+    ['GET', '/api/match/history', 'List previous analyses.'],
+    ['DELETE', '/api/match/{id}', 'Delete an analysis.']
+  ];
+  const cls = m => m === 'GET' ? 'm-get' : m === 'DELETE' ? 'm-del' : 'm-post';
+  return `<div class="stack">
+    <div class="card pad-lg">
+      <h3 style="font-size:17px">How this build maps to the Spring Boot design</h3>
+      <p class="small muted" style="margin:8px 0 0;max-width:78ch">This page runs the whole flow in the browser so you can use it now. The layers line up one to one with the server design in your spec, so the browser modules can be swapped for API calls without changing the UI.</p>
+      <div class="divider"></div>
+      <div class="grid two-col" style="gap:16px">
+        ${[['Store', 'ResumeRepository / JobRepository / MatchRepository over MySQL'],
+           ['Auth', 'Spring Security with JWT filters and protected routes'],
+           ['Parser', 'Apache PDFBox and POI, then NLP extraction in the AI service'],
+           ['Engine', 'MatchingEngine plus AIService for semantics and explanations'],
+           ['Views', 'React pages consuming the REST API over Axios'],
+           ['Chart', 'Recharts or Chart.js in the React build']]
+          .map(([a, b]) => `<div style="padding:13px;border:1px solid var(--border);border-radius:var(--r-m)">
+            <code class="inl">${a}</code><p class="small muted" style="margin-top:8px">${b}</p></div>`).join('')}
+      </div>
+    </div>
+
+    <div class="card pad-lg">
+      <h3 style="font-size:16px;margin-bottom:14px">REST endpoints</h3>
+      <div class="scroll-x"><table><tbody>
+        ${eps.map(([m, p, d]) => `<tr><td style="width:80px"><span class="method ${cls(m)}">${m}</span></td>
+          <td><code class="inl">${esc(p)}</code></td><td class="small muted">${esc(d)}</td></tr>`).join('')}
+      </tbody></table></div>
+    </div>
+
+    <div class="grid two-col">
+      <div class="card pad-lg">
+        <h3 style="font-size:16px;margin-bottom:14px">Database schema</h3>
+        <pre class="code">users(id, name, email, password_hash, created_at)
+resumes(id, user_id, file_name, file_path,
+        extracted_text, created_at)
+skills(id, name, category)
+resume_skills(resume_id, skill_id)
+jobs(id, user_id, title, company,
+     description, created_at)
+job_skills(job_id, skill_id, required)
+match_results(id, resume_id, job_id,
+     overall_score, skill_score,
+     experience_score, education_score,
+     project_score, created_at)
+recommendations(id, match_result_id,
+     recommendation, created_at)</pre>
+      </div>
+      <div class="card pad-lg">
+        <h3 style="font-size:16px;margin-bottom:14px">Match response shape</h3>
+        <pre class="code">{
+  "overallScore": 76,
+  "parts": {
+    "required": 0.72, "preferred": 0.50,
+    "experience": 0.80, "education": 1.0,
+    "projects": 0.65
+  },
+  "matchedSkills": ["Java","SQL","Git"],
+  "relatedSkills": [
+    { "skill": "REST APIs", "via": ["Spring Boot"] }
+  ],
+  "missingSkills": ["Spring Boot","Docker"],
+  "semanticSimilarity": 0.41,
+  "explanation": "...",
+  "recommendations": [ { "title": "...",
+    "body": "...", "tag": "Required skill" } ]
+}</pre>
+      </div>
+    </div>
+
+    <div class="card pad-lg">
+      <h3 style="font-size:16px;margin-bottom:10px">The scoring formula, as implemented</h3>
+      <pre class="code">requiredScore  = (exactMatches + relatedCredit) / requiredCount
+preferredScore = (exactMatches + relatedCredit) / preferredCount
+// relatedCredit: 0.5 via a specific technology, 0.25 via a base language
+experience     = yearsCoverage × 0.6 + jobStackInWorkHistory × 0.4
+education      = candidateLevel >= askedLevel ? 1 : partial credit
+projects       = jobStackInProjects × 0.8 + projectCount capped × 0.2
+
+overall = required × 0.50 + preferred × 0.15
+        + experience × 0.15 + education × 0.10 + projects × 0.10</pre>
+      <p class="help">Change <code class="inl">WEIGHTS</code>, <code class="inl">RELATED_CREDIT</code> and <code class="inl">GENERIC</code> at the top of the engine to retune the model.</p>
+    </div>
+  </div>`;
+}
+
+/* ============================================================
+   9. RENDER + EVENTS
+   ============================================================ */
+const TITLES = { dashboard: 'Dashboard', resumes: 'Resumes', jobs: 'Job descriptions', analyze: 'New analysis', history: 'Analysis history', api: 'API & schema', result: 'Analysis result', resume: 'Parsed resume' };
+
+function render() {
+  const root = $('#app');
+  const user = Store.me();
+
+  if (!user) {
+    root.innerHTML = (state.route === 'auth') ? AuthView() : LandingView();
+    wireCommon();
+    if (state.route === 'auth') wireAuth();
+    return;
+  }
+  if (['landing', 'auth'].includes(state.route)) state.route = 'dashboard';
+
+  let body = '', actions = '', title = TITLES[state.route] || 'Dashboard';
+  switch (state.route) {
+    case 'resumes': body = ResumesView(); break;
+    case 'jobs': body = JobsView(); break;
+    case 'analyze': body = AnalyzeView(); break;
+    case 'history': body = HistoryView(); actions = `<button class="btn btn-primary btn-sm" data-go="analyze">New analysis</button>`; break;
+    case 'api': body = ApiView(); break;
+    case 'result': {
+      const a = Store.get('analyses', state.sub);
+      if (!a) { state.route = 'history'; return render(); }
+      body = ResultView(a); title = 'Analysis result'; break;
+    }
+    case 'resume': {
+      const r = Store.get('resumes', state.sub);
+      if (!r) { state.route = 'resumes'; return render(); }
+      body = ResumeDetail(r); title = r.name; break;
+    }
+    default:
+      body = DashboardView(); title = 'Dashboard';
+      actions = `<button class="btn btn-primary btn-sm" data-go="analyze">New analysis</button>`;
+  }
+  root.innerHTML = Shell(title, body, actions);
+  wireCommon();
+  wireApp();
+}
+
+function wireCommon() {
+  $$('[data-theme-toggle]').forEach(b => b.onclick = toggleTheme);
+  $$('[data-auth]').forEach(b => b.onclick = () => { state.authTab = b.dataset.auth; go('auth'); });
+  $$('[data-home]').forEach(b => b.onclick = () => go('landing'));
+  $$('[data-demo]').forEach(b => b.onclick = demoWorkspace);
+  $$('[data-go]').forEach(b => b.onclick = () => go(b.dataset.go));
+  $$('[data-seed]').forEach(b => b.onclick = () => { seedSamples(); toast('Sample resume and three job descriptions added.', 'ok'); go('analyze'); });
+  $$('[data-print]').forEach(b => b.onclick = () => window.print());
+}
+
+function wireAuth() {
+  $$('[data-tab]').forEach(b => b.onclick = () => { state.authTab = b.dataset.tab; render(); });
+  const form = $('#authForm');
+  form.onsubmit = e => {
+    e.preventDefault();
+    const err = $('#authErr'); err.textContent = '';
+    try {
+      if (state.authTab === 'login') {
+        const u = Auth.login($('#f-email').value, $('#f-pw').value);
+        toast(`Welcome back, ${u.name.split(' ')[0]}.`, 'ok');
+      } else {
+        if ($('#f-pw').value !== $('#f-pw2').value) throw new Error('The two passwords do not match.');
+        const u = Auth.register($('#f-name').value, $('#f-email').value, $('#f-pw').value);
+        toast(`Account created. Welcome, ${u.name.split(' ')[0]}.`, 'ok');
+      }
+      go('dashboard');
+    } catch (ex) { err.textContent = ex.message; }
+  };
+}
+
+function wireApp() {
+  $('[data-burger]') && ($('[data-burger]').onclick = () => { state.sidebar = !state.sidebar; render(); });
+  $('[data-logout]') && ($('[data-logout]').onclick = () => { Auth.logout(); state.route = 'landing'; render(); toast('Logged out.'); });
+
+  // resumes
+  const drop = $('#drop'), input = $('#fileInput');
+  if (drop) {
+    drop.onclick = () => input.click();
+    drop.onkeydown = e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); input.click(); } };
+    drop.ondragover = e => { e.preventDefault(); drop.classList.add('over'); };
+    drop.ondragleave = () => drop.classList.remove('over');
+    drop.ondrop = e => { e.preventDefault(); drop.classList.remove('over'); if (e.dataTransfer.files[0]) handleFile(e.dataTransfer.files[0]); };
+    input.onchange = () => { if (input.files[0]) handleFile(input.files[0]); };
+  }
+  $('[data-paste-sample]') && ($('[data-paste-sample]').onclick = () => {
+    $('#pasteText').value = SAMPLE_RESUME;
+    if (!$('#pasteName').value) $('#pasteName').value = 'Resume_Sample';
+  });
+  $('[data-paste-save]') && ($('[data-paste-save]').onclick = () => {
+    const text = $('#pasteText').value.trim();
+    const name = ($('#pasteName').value.trim() || 'Pasted resume');
+    if (text.length < 80) { $('#upErr').textContent = 'That looks too short to be a resume. Paste the full text.'; return; }
+    saveResume(name, 'txt', text.length, text);
+  });
+  $$('[data-view-resume]').forEach(b => b.onclick = () => go('resume', b.dataset.viewResume));
+  $$('[data-del-resume]').forEach(b => b.onclick = async () => {
+    const r = Store.get('resumes', b.dataset.delResume);
+    if (await confirmDialog('Delete this resume?', `${r.name} and its analyses will be removed from this browser.`)) {
+      Store.db.analyses = Store.db.analyses.filter(a => a.resumeId !== r.id);
+      Store.remove('resumes', r.id); toast('Resume deleted.'); render();
+    }
+  });
+  $$('[data-analyze-resume]').forEach(b => b.onclick = () => go('analyze', { resumeId: b.dataset.analyzeResume, jobId: (state.sub || {}).jobId }));
+
+  // jobs
+  $('[data-job-sample]') && ($('[data-job-sample]').onclick = () => {
+    const used = Store.mine('jobs').map(j => j.title);
+    const s = SAMPLE_JOBS.find(j => !used.includes(j.title)) || SAMPLE_JOBS[0];
+    $('#j-title').value = s.title; $('#j-company').value = s.company; $('#j-desc').value = s.description;
+  });
+  $('[data-job-save]') && ($('[data-job-save]').onclick = () => {
+    const title = $('#j-title').value.trim(), company = $('#j-company').value.trim(), desc = $('#j-desc').value.trim();
+    const err = $('#jobErr');
+    if (!title) { err.textContent = 'Give the job a title.'; return; }
+    if (desc.length < 60) { err.textContent = 'Paste the full job description — this is too short to analyse.'; return; }
+    const parsed = Parser.parseJob(desc);
+    Store.insert('jobs', { userId: Store.db.session, title, company, description: desc, parsed });
+    toast(`Saved. ${parsed.required.length} required and ${parsed.preferred.length} preferred skills detected.`, 'ok');
+    render();
+  });
+  $$('[data-del-job]').forEach(b => b.onclick = async () => {
+    const j = Store.get('jobs', b.dataset.delJob);
+    if (await confirmDialog('Delete this job description?', `${j.title} and its analyses will be removed.`)) {
+      Store.db.analyses = Store.db.analyses.filter(a => a.jobId !== j.id);
+      Store.remove('jobs', j.id); toast('Job description deleted.'); render();
+    }
+  });
+  $$('[data-analyze-job]').forEach(b => b.onclick = () => go('analyze', { jobId: b.dataset.analyzeJob, resumeId: (state.sub || {}).resumeId }));
+
+  // analyse
+  $$('[data-pick-resume]').forEach(b => b.onclick = () => { state.sub = Object.assign({}, state.sub, { resumeId: b.dataset.pickResume }); render(); });
+  $$('[data-pick-job]').forEach(b => b.onclick = () => { state.sub = Object.assign({}, state.sub, { jobId: b.dataset.pickJob }); render(); });
+  $('[data-run]') && ($('[data-run]').onclick = runAnalysis);
+
+  // history
+  $$('[data-open-analysis]').forEach(el => el.onclick = () => go('result', el.dataset.openAnalysis));
+  $$('[data-del-analysis]').forEach(b => b.onclick = async e => {
+    e.stopPropagation();
+    if (await confirmDialog('Delete this analysis?', 'The saved result will be removed. Your resume and job description stay.')) {
+      Store.remove('analyses', b.dataset.delAnalysis); toast('Analysis deleted.'); render();
+    }
+  });
+}
+
+/* ---------------- actions ---------------- */
+async function handleFile(file) {
+  const err = $('#upErr'); if (err) err.textContent = '';
+  if (file.size > 5 * 1024 * 1024) { err.textContent = 'That file is over 5 MB. Upload a smaller one.'; return; }
+  const ext = (file.name.split('.').pop() || '').toLowerCase();
+  if (!['pdf', 'docx', 'txt', 'md'].includes(ext)) { err.textContent = 'Upload a PDF, DOCX, TXT or Markdown file.'; return; }
+  const drop = $('#drop');
+  if (drop) drop.innerHTML = `<div class="row" style="justify-content:center;gap:10px"><span class="loader" style="border-color:var(--border);border-top-color:var(--accent)"></span><span style="font-weight:600">Reading ${esc(file.name)}…</span></div>`;
+  try {
+    const text = await Parser.extractText(file);
+    if (text.trim().length < 60) throw new Error('No readable text was found. If this is a scanned PDF, paste the text instead.');
+    saveResume(file.name.replace(/\.[^.]+$/, ''), ext, file.size, text);
+  } catch (ex) {
+    render();
+    const e2 = $('#upErr'); if (e2) e2.textContent = ex.message;
+    toast(ex.message, 'bad');
+  }
+}
+
+function saveResume(name, ext, size, text) {
+  const parsed = Parser.parseResume(text);
+  const r = Store.insert('resumes', { userId: Store.db.session, name, ext, size, text, parsed });
+  toast(`${name} parsed — ${parsed.skills.length} skills found.`, 'ok');
+  go('resume', r.id);
+}
+
+async function runAnalysis() {
+  const { resumeId, jobId } = state.sub || {};
+  const resume = Store.get('resumes', resumeId), job = Store.get('jobs', jobId);
+  if (!resume || !job) return;
+  const btn = $('[data-run]'), steps = $('#runSteps');
+  btn.disabled = true;
+  btn.innerHTML = `<span class="loader"></span> Analysing`;
+  steps.classList.remove('hidden');
+  const nodes = $$('[data-step]', steps);
+  for (let i = 0; i < nodes.length; i++) {
+    nodes.forEach((n, k) => n.className = 'run-step' + (k < i ? ' done' : k === i ? ' on' : ''));
+    await new Promise(r => setTimeout(r, 260));
+  }
+  nodes.forEach(n => n.className = 'run-step done');
+
+  const result = Engine.run(resume, job);
+  const a = Store.insert('analyses', {
+    userId: Store.db.session, resumeId, jobId,
+    resumeName: resume.name, jobTitle: job.title, company: job.company, result
+  });
+  toast(`Compatibility ${result.overall}% — ${result.req.missing.length} required skill${result.req.missing.length === 1 ? '' : 's'} missing.`, 'ok');
+  go('result', a.id);
+}
+
+/* ---------------- sample data ---------------- */
+function seedSamples() {
+  const uidNow = Store.db.session;
+  if (!Store.mine('resumes').length) {
+    const parsed = Parser.parseResume(SAMPLE_RESUME);
+    Store.insert('resumes', { userId: uidNow, name: 'Resume_Java', ext: 'pdf', size: 84213, text: SAMPLE_RESUME, parsed });
+  }
+  const have = Store.mine('jobs').map(j => j.title);
+  SAMPLE_JOBS.forEach(j => {
+    if (have.includes(j.title)) return;
+    Store.insert('jobs', { userId: uidNow, title: j.title, company: j.company, description: j.description, parsed: Parser.parseJob(j.description) });
+  });
+}
+
+function demoWorkspace() {
+  const email = 'demo@careerlens.ai';
+  let u = Store.db.users.find(x => x.email === email);
+  if (!u) {
+    u = { id: uid(), name: 'Rajendra Kumar', email, pw: hash('demo1234'), createdAt: Date.now() };
+    Store.db.users.push(u);
+  }
+  Store.db.session = u.id; Store.save();
+  seedSamples();
+  // pre-run the analyses so the dashboard has a trend on first load
+  if (!Store.mine('analyses').length) {
+    const resume = Store.mine('resumes')[0];
+    Store.mine('jobs').forEach(job => {
+      const result = Engine.run(resume, job);
+      Store.insert('analyses', {
+        userId: u.id, resumeId: resume.id, jobId: job.id,
+        resumeName: resume.name, jobTitle: job.title, company: job.company, result
+      });
+    });
+  }
+  toast('Demo workspace ready. Log in later with demo@careerlens.ai / demo1234.', 'ok');
+  go('dashboard');
+}
+
+/* ---------------- boot ---------------- */
+Store.load();
+applyTheme();
+state.route = Store.me() ? 'dashboard' : 'landing';
+render();
+document.addEventListener('keydown', e => { if (e.key === 'Escape' && state.sidebar) { state.sidebar = false; render(); } });
+</script>
+</body>
+</html>
